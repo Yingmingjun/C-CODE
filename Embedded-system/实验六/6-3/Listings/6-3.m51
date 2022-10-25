@@ -1,0 +1,379 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    10/17/2020  18:02:10  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+D:\KEIL-C51\KEIL\C51\BIN\BL51.EXE .\Objects\6-3.obj TO .\Objects\6-3 PRINT (.\Listings\6-3.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\6-3.obj (6_3)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C?CLDPTR)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C?CILDOPTR)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C?CSTPTR)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C?CSTOPTR)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\6-3 (6_3)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0007H     UNIT         ?DT?6_3
+            DATA    000FH     0004H     UNIT         _DATA_GROUP_
+            IDATA   0013H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     00ADH     UNIT         ?C?LIB_CODE
+            CODE    00B0H     008CH     UNIT         ?C_C51STARTUP
+            CODE    013CH     006EH     UNIT         ?PR?_SET_TIME?6_3
+            CODE    01AAH     005FH     UNIT         ?PR?MAIN?6_3
+            CODE    0209H     0025H     UNIT         ?PR?_READ_TIME?6_3
+            CODE    022EH     001AH     UNIT         ?PR?_DS1302_WRITE_BYTE?6_3
+            CODE    0248H     0016H     UNIT         ?PR?DS1302_READ_BYTE?6_3
+            CODE    025EH     0015H     UNIT         ?PR?_UART_SEND_DAT?6_3
+            CODE    0273H     0012H     UNIT         ?PR?_DS1302_WRITE?6_3
+            CODE    0285H     0012H     UNIT         ?PR?_DS1302_READ?6_3
+            CODE    0297H     000FH     UNIT         ?PR?UART_INIT?6_3
+            CODE    02A6H     000DH     UNIT         ?PR?DS1302_CLEAR_WP?6_3
+            CODE    02B3H     000DH     UNIT         ?PR?DS1302_SET_WP?6_3
+            CODE    02C0H     000BH     UNIT         ?PR?_DELAY?6_3
+            CODE    02CBH     000AH     UNIT         ?C_INITSEG
+            CODE    02D5H     0008H     UNIT         ?PR?_UART_SEND_BYTE?6_3
+            CODE    02DDH     0007H     UNIT         ?PR?DS1302_RESET?6_3
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\6-3 (6_3)
+
+
+SEGMENT                              DATA_GROUP 
+  +--> CALLED SEGMENT              START    LENGTH
+--------------------------------------------------
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 2
+
+
+?C_C51STARTUP                      -----    -----
+  +--> ?PR?MAIN?6_3
+  +--> ?C_INITSEG
+
+?PR?MAIN?6_3                       -----    -----
+  +--> ?PR?UART_INIT?6_3
+  +--> ?PR?_SET_TIME?6_3
+  +--> ?PR?_READ_TIME?6_3
+  +--> ?PR?_UART_SEND_DAT?6_3
+  +--> ?PR?_UART_SEND_BYTE?6_3
+  +--> ?PR?_DELAY?6_3
+
+?PR?_SET_TIME?6_3                  000FH    0004H
+  +--> ?PR?DS1302_CLEAR_WP?6_3
+  +--> ?PR?_DS1302_WRITE?6_3
+  +--> ?PR?DS1302_SET_WP?6_3
+
+?PR?DS1302_CLEAR_WP?6_3            -----    -----
+  +--> ?PR?_DS1302_WRITE_BYTE?6_3
+
+?PR?_DS1302_WRITE_BYTE?6_3         -----    -----
+  +--> ?PR?DS1302_RESET?6_3
+
+?PR?_DS1302_WRITE?6_3              -----    -----
+  +--> ?PR?DS1302_RESET?6_3
+  +--> ?PR?_DS1302_WRITE_BYTE?6_3
+
+?PR?DS1302_SET_WP?6_3              -----    -----
+  +--> ?PR?_DS1302_WRITE_BYTE?6_3
+
+?PR?_READ_TIME?6_3                 000FH    0003H
+  +--> ?PR?_DS1302_READ?6_3
+
+?PR?_DS1302_READ?6_3               -----    -----
+  +--> ?PR?DS1302_RESET?6_3
+  +--> ?PR?_DS1302_WRITE_BYTE?6_3
+  +--> ?PR?DS1302_READ_BYTE?6_3
+
+?PR?_UART_SEND_DAT?6_3             -----    -----
+  +--> ?PR?_UART_SEND_BYTE?6_3
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\6-3 (6_3)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        6_3
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  C:02C0H         PUBLIC        _delay
+  C:02A6H         PUBLIC        ds1302_clear_WP
+  D:00B8H         PUBLIC        IP
+  B:0098H.1       PUBLIC        TI
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 3
+
+
+  C:0285H         PUBLIC        _ds1302_read
+  C:02D5H         PUBLIC        _UART_Send_Byte
+  C:025EH         PUBLIC        _UART_Send_Dat
+  C:02DDH         PUBLIC        ds1302_reset
+  C:01AAH         PUBLIC        main
+  C:0273H         PUBLIC        _ds1302_write
+  C:0209H         PUBLIC        _read_time
+  D:0008H         PUBLIC        time
+  D:0099H         PUBLIC        SBUF
+  D:0098H         PUBLIC        SCON
+  C:0248H         PUBLIC        ds1302_read_byte
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:0235H         PUBLIC        _ds1302_write_byte
+  D:008DH         PUBLIC        TH1
+  D:008BH         PUBLIC        TL1
+  C:0297H         PUBLIC        uart_init
+  C:02B3H         PUBLIC        ds1302_set_WP
+  B:0088H.6       PUBLIC        TR1
+  B:00B0H.4       PUBLIC        SDA
+  C:013CH         PUBLIC        _set_time
+  B:00B0H.5       PUBLIC        SCK
+  D:00C8H         PUBLIC        T2CON
+  B:0090H.7       PUBLIC        RST
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          DS1302_RESET
+  C:02DDH         LINE#         15
+  C:02DDH         LINE#         16
+  C:02DDH         LINE#         17
+  C:02DFH         LINE#         18
+  C:02E1H         LINE#         19
+  C:02E3H         LINE#         20
+  -------         ENDPROC       DS1302_RESET
+  -------         PROC          L?0038
+  -------         ENDPROC       L?0038
+  -------         PROC          _DS1302_WRITE_BYTE
+  D:0007H         SYMBOL        dat
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:0235H         LINE#         23
+  C:0235H         LINE#         24
+  C:0235H         LINE#         27
+  C:0237H         LINE#         28
+  C:0237H         LINE#         29
+  C:023BH         LINE#         30
+  C:023DH         LINE#         31
+  C:023FH         LINE#         32
+  C:0243H         LINE#         33
+  C:0247H         LINE#         34
+  -------         ENDPROC       _DS1302_WRITE_BYTE
+  -------         PROC          DS1302_READ_BYTE
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0007H         SYMBOL        dat
+  -------         ENDDO         
+  C:0248H         LINE#         42
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 4
+
+
+  C:0248H         LINE#         43
+  C:0248H         LINE#         44
+  C:024AH         LINE#         45
+  C:024BH         LINE#         46
+  C:024BH         LINE#         48
+  C:024FH         LINE#         49
+  C:0252H         LINE#         50
+  C:0255H         LINE#         51
+  C:0257H         LINE#         52
+  C:0259H         LINE#         54
+  C:025DH         LINE#         55
+  C:025DH         LINE#         56
+  -------         ENDPROC       DS1302_READ_BYTE
+  -------         PROC          DS1302_CLEAR_WP
+  C:02A6H         LINE#         59
+  C:02A6H         LINE#         60
+  C:02A6H         LINE#         61
+  C:02A6H         LINE#         62
+  C:02A6H         LINE#         63
+  C:02A9H         LINE#         64
+  C:02AEH         LINE#         66
+  C:02B0H         LINE#         67
+  C:02B2H         LINE#         69
+  -------         ENDPROC       DS1302_CLEAR_WP
+  -------         PROC          DS1302_SET_WP
+  C:02B3H         LINE#         72
+  C:02B3H         LINE#         73
+  C:02B3H         LINE#         74
+  C:02B3H         LINE#         75
+  C:02B3H         LINE#         76
+  C:02B6H         LINE#         77
+  C:02BBH         LINE#         79
+  C:02BDH         LINE#         80
+  C:02BFH         LINE#         82
+  -------         ENDPROC       DS1302_SET_WP
+  -------         PROC          _DS1302_WRITE
+  D:0007H         SYMBOL        addr
+  D:0005H         SYMBOL        dat
+  C:0273H         LINE#         87
+  C:0273H         LINE#         88
+  C:0273H         LINE#         89
+  C:0276H         LINE#         90
+  C:0278H         LINE#         91
+  C:027BH         LINE#         92
+  C:0280H         LINE#         94
+  C:0282H         LINE#         95
+  C:0284H         LINE#         96
+  -------         ENDPROC       _DS1302_WRITE
+  -------         PROC          _DS1302_READ
+  D:0007H         SYMBOL        addr
+  -------         DO            
+  D:0006H         SYMBOL        temp
+  -------         ENDDO         
+  C:0285H         LINE#         99
+  C:0285H         LINE#         100
+  C:0285H         LINE#         101
+  C:0287H         LINE#         102
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 5
+
+
+  C:028AH         LINE#         103
+  C:028CH         LINE#         104
+  C:028FH         LINE#         105
+  C:0292H         LINE#         107
+  C:0294H         LINE#         108
+  C:0296H         LINE#         109
+  C:0296H         LINE#         110
+  -------         ENDPROC       _DS1302_READ
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        n
+  C:02C0H         LINE#         112
+  C:02C0H         LINE#         113
+  C:02C0H         LINE#         114
+  C:02CAH         LINE#         115
+  -------         ENDPROC       _DELAY
+  -------         PROC          _SET_TIME
+  D:000FH         SYMBOL        timedata
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0012H         SYMBOL        temp
+  -------         ENDDO         
+  C:013CH         LINE#         123
+  C:0142H         LINE#         124
+  C:0142H         LINE#         126
+  C:0145H         LINE#         127
+  C:0146H         LINE#         128
+  C:0146H         LINE#         129
+  C:015AH         LINE#         130
+  C:016CH         LINE#         131
+  C:017FH         LINE#         132
+  C:0183H         LINE#         133
+  C:0186H         LINE#         134
+  C:0189H         LINE#         135
+  C:018BH         LINE#         136
+  C:018BH         LINE#         137
+  C:019FH         LINE#         138
+  C:01A3H         LINE#         139
+  C:01A7H         LINE#         140
+  -------         ENDPROC       _SET_TIME
+  -------         PROC          _READ_TIME
+  D:000FH         SYMBOL        timedata
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0005H         SYMBOL        temp
+  -------         ENDDO         
+  C:0209H         LINE#         147
+  C:020FH         LINE#         148
+  C:020FH         LINE#         150
+  C:0211H         LINE#         151
+  C:0213H         LINE#         152
+  C:0213H         LINE#         153
+  C:0227H         LINE#         154
+  C:0229H         LINE#         155
+  C:022DH         LINE#         156
+  -------         ENDPROC       _READ_TIME
+  -------         PROC          UART_INIT
+  C:0297H         LINE#         160
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 6
+
+
+  C:0297H         LINE#         161
+  C:0297H         LINE#         162
+  C:029AH         LINE#         163
+  C:029DH         LINE#         165
+  C:02A0H         LINE#         166
+  C:02A3H         LINE#         168
+  C:02A5H         LINE#         169
+  -------         ENDPROC       UART_INIT
+  -------         PROC          _UART_SEND_BYTE
+  D:0007H         SYMBOL        dat
+  C:02D5H         LINE#         174
+  C:02D5H         LINE#         175
+  C:02D5H         LINE#         176
+  C:02D7H         LINE#         177
+  C:02DAH         LINE#         178
+  C:02DCH         LINE#         179
+  -------         ENDPROC       _UART_SEND_BYTE
+  -------         PROC          _UART_SEND_DAT
+  D:0006H         SYMBOL        dat
+  C:025EH         LINE#         184
+  C:0260H         LINE#         185
+  C:0260H         LINE#         186
+  C:026AH         LINE#         187
+  -------         ENDPROC       _UART_SEND_DAT
+  -------         PROC          MAIN
+  C:01AAH         LINE#         189
+  C:01AAH         LINE#         190
+  C:01AAH         LINE#         193
+  C:01ADH         LINE#         194
+  C:01B6H         LINE#         196
+  C:01B6H         LINE#         197
+  C:01B6H         LINE#         199
+  C:01BFH         LINE#         201
+  C:01C4H         LINE#         202
+  C:01C9H         LINE#         203
+  C:01CEH         LINE#         204
+  C:01D3H         LINE#         205
+  C:01D8H         LINE#         206
+  C:01DDH         LINE#         208
+  C:01E2H         LINE#         209
+  C:01E7H         LINE#         210
+  C:01ECH         LINE#         211
+  C:01F1H         LINE#         212
+  C:01F6H         LINE#         213
+  C:01FBH         LINE#         214
+  C:0200H         LINE#         216
+  C:0207H         LINE#         217
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        6_3
+
+  -------         MODULE        ?C?CLDPTR
+  C:0003H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CLDOPTR
+  C:001CH         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  18:02:10  PAGE 7
+
+
+
+  -------         MODULE        ?C?CILDOPTR
+  C:0049H         PUBLIC        ?C?CILDOPTR
+  -------         ENDMOD        ?C?CILDOPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:007CH         PUBLIC        ?C?CSTPTR
+  -------         ENDMOD        ?C?CSTPTR
+
+  -------         MODULE        ?C?CSTOPTR
+  C:008EH         PUBLIC        ?C?CSTOPTR
+  -------         ENDMOD        ?C?CSTOPTR
+
+Program Size: data=20.0 xdata=0 code=740
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

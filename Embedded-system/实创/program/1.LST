@@ -1,0 +1,1717 @@
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE 1
+OBJECT MODULE PLACED IN 1.OBJ
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE 1.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include <intrins.h>
+   3          #include <stdlib.h>
+   4          #include <stdio.h>
+   5          #include <math.h>
+   6          #include <i2c.h>
+   7          #define NUM 20
+   8          
+   9          typedef unsigned int u16;         //对数据类型进行声明定义
+  10          typedef unsigned char u8;
+  11          
+  12          void delay1ms(u16 i);
+  13          void delay(u16 i);
+  14          void check0();
+  15          void LevelSelect();
+  16          u8 Keydown();
+  17          u8 Keydown1();
+  18          void displaysmile();
+  19          void displaysmile();
+  20          void displaynumber(u8 n);
+  21          void displaynumber10(u8 n);
+  22          void displayGo();
+  23          void displayT();
+  24          void displayV();
+  25          void displayscore10();
+  26          void displayscore1();
+  27          void mouse(u8 p,u8 l);
+  28          void gamefunc();
+  29          void InitTimer0();
+  30          void Int0Init();
+  31          
+  32          sbit A0 = P1^0;
+  33          sbit A1 = P1^1;
+  34          sbit A2 = P1^2;//A0~A2为138译码器的输入管脚
+  35          sbit beep = P1^5;//有源蜂鸣器
+  36          sbit select = P1^6;//难度选择按键
+  37          sbit enter = P1^7;//确认按键
+  38          sbit k0=P3^2;//定义按键k0为P3.2/INT0
+  39          sbit k1=P3^3;//定义按键k1为P3.3/INT1
+  40          
+  41          u8 level = 1;//记录难度值
+  42          u8 score=0;//score为记录的分数.限时模式显示时需要×10
+  43          u8 max1=0;//记录普通模式最大分数，存入AT24C16
+  44          u8 max2=0;//记录限时模式最大分数，存入AT24C16
+  45          u8 i=0;
+  46          u8 p=1;//作为随机数种子，随函数执行自增
+  47          u8 j=0;
+  48          u8 flag_limit=0;//判断游戏模式标志位
+  49          u16 time=0;
+  50          u16 TIME1=0;
+  51          
+  52          u8 code number[]= {0x00,0x00,0x7E,0x42,0x42,0x7E,0x00,0x00, //0
+  53                             0x00,0x00,0x42,0x7F,0x40,0x00,0x00,0x00,//1
+  54                             0x00,0x00,0x79,0x49,0x49,0x4F,0x00,0x00,//2
+  55                             0x00,0x00,0x49,0x49,0x49,0x7F,0x00,0x00,//3
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 2   
+
+  56                             0x00,0x00,0x0F,0x08,0x08,0x7F,0x00,0x00,//4
+  57                             0x00,0x00,0x4F,0x49,0x49,0x79,0x00,0x00,//5
+  58                             0x00,0x00,0x7F,0x49,0x49,0x79,0x00,0x00,//6
+  59                             0x00,0x00,0x01,0x01,0x01,0x7F,0x00,0x00,//7
+  60                             0x00,0x00,0x7F,0x49,0x49,0x7F,0x00,0x00,//8
+  61                             0x00,0x00,0x4F,0x49,0x49,0x7F,0x00,0x00,//9
+  62                             0x42,0x7F,0x40,0x00,0x7E,0x42,0x42,0x7E
+  63                            };//8*8数字显示0~10
+  64          
+  65          u8 code number_shi[]= {0x00,0x00,0x7E,0x42,0x42,0x7E,0x00,0x00, //0
+  66                                 0x42,0x7F,0x40,0x00,0x7E,0x42,0x42,0x7E,//10
+  67                                 0x3A,0x2A,0x2E,0x00,0x3E,0x22,0x3E,0x00,//20
+  68                                 0x2A,0x2A,0x3E,0x00,0x3E,0x22,0x3E,0x00,//30
+  69                                 0x0E,0x08,0x3E,0x00,0x3E,0x22,0x3E,0x00,//40
+  70                                 0x2E,0x2A,0x3A,0x00,0x3E,0x22,0x3E,0x00,//50
+  71                                 0x3E,0x2A,0x3A,0x00,0x3E,0x22,0x3E,0x00,//60
+  72                                 0x02,0x02,0x3E,0x00,0x3E,0x22,0x3E,0x00,//70
+  73                                 0x3E,0x2A,0x3E,0x00,0x3E,0x22,0x3E,0x00,//80
+  74                                 0x2E,0x2A,0x3E,0x00,0x3E,0x22,0x3E,0x00,//90
+  75                                 0x7E,0x00,0x78,0x78,0x00,0x78,0x78,0x00,//100
+  76                                                     0x7E,0x00,0x7E,0x00,0x7E,0x42,0x42,0x7E,//110
+  77                                     0x3E,0x00,0x3A,0x2A,0x2E,0x00,0x3E,0x3E,//120
+  78                                };//8*8数字显示0~100,间隔10
+  79          
+  80          u8 code ledGo[]= {0x3E,0x22,0x2A,0x3A,0x00,0x3C,0x24,0x3C};
+  81          u8 code ledduan[]= {0x03,0x0C,0x30,0xC0};
+  82          u8 code ledsmile[]= {0x3C,0x42,0x95,0xA1,0xA1,0x95,0x42,0x3C};
+  83          u8 code ledstar[]= {0x00,0x02,0x02,0x7E,0x02,0x02,0x00,0x00};
+  84          u8 code ledV[]= {0x00,0x1E,0x20,0x40,0x20,0x1E,0x00,0x00};
+  85          u8 position1[20]= {0};
+  86          u8 position2[20]= {0};
+  87          
+  88          void delay1ms(u16 i)
+  89          {
+  90   1          u8 x,y;
+  91   1          for(x=0; x<i; x++)
+  92   1          {
+  93   2              for(y=0; y<120; y++);
+  94   2          }
+  95   1      }
+  96          void delay(u16 i)
+  97          {
+  98   1          while(i--);
+  99   1      }
+ 100          
+ 101          
+ 102          void check0()//开机自检程序，2*2点亮，循环16次
+ 103          {       
+ 104   1              u16 c1,c5;
+ 105   1              for(c1=0;c1<4;c1++)
+ 106   1              {       
+ 107   2                      for(c5=0;c5<380;c5++)
+ 108   2                      {
+ 109   3                              A0=0;A1=0;A2=0;P0=ledduan[c1];
+ 110   3                              delay1ms(1);
+ 111   3                              A0=1;A1=0;A2=0;P0=ledduan[c1];
+ 112   3                              delay1ms(1);
+ 113   3                              P0=0;
+ 114   3                      }delay1ms(100);
+ 115   2                      for(c5=0;c5<380;c5++)
+ 116   2                      {               
+ 117   3                              A0=0;A1=1;A2=0;P0=ledduan[c1];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 3   
+
+ 118   3                              delay1ms(1);
+ 119   3                              A0=1;A1=1;A2=0;P0=ledduan[c1];
+ 120   3                              delay1ms(1);
+ 121   3                              P0=0;
+ 122   3                      }delay1ms(100);
+ 123   2                      for(c5=0;c5<380;c5++)
+ 124   2                      {
+ 125   3                              A0=0;A1=0;A2=1;P0=ledduan[c1];
+ 126   3                              delay1ms(1);
+ 127   3                              A0=1;A1=0;A2=1;P0=ledduan[c1];
+ 128   3                              delay1ms(1);
+ 129   3                              P0=0;
+ 130   3                      }delay1ms(100);
+ 131   2                      for(c5=0;c5<380;c5++)
+ 132   2                      {
+ 133   3                              A0=0;A1=1;A2=1;P0=ledduan[c1];
+ 134   3                              delay1ms(1);
+ 135   3                              A0=1;A1=1;A2=1;P0=ledduan[c1];
+ 136   3                              delay1ms(1);
+ 137   3                              P0=0;
+ 138   3                      }delay1ms(100);
+ 139   2              }
+ 140   1      }
+ 141          void displaysmile()//显示笑脸同时蜂鸣器鸣响
+ 142          {       
+ 143   1              u16 c1=0,c4=0;
+ 144   1              beep = 0;
+ 145   1              for(;c4<500;c4++)
+ 146   1              {
+ 147   2                              c1 = 0;
+ 148   2                              A0=0;A1=0;A2=0;P0=ledsmile[c1++];
+ 149   2                              delay1ms(1);
+ 150   2                              A0=1;A1=0;A2=0;P0=ledsmile[c1++];
+ 151   2                              delay1ms(1);    
+ 152   2                              A0=0;A1=1;A2=0;P0=ledsmile[c1++];
+ 153   2                              delay1ms(1);
+ 154   2                              A0=1;A1=1;A2=0;P0=ledsmile[c1++];
+ 155   2                              delay1ms(1);
+ 156   2                              A0=0;A1=0;A2=1;P0=ledsmile[c1++];
+ 157   2                              delay1ms(1);
+ 158   2                              A0=1;A1=0;A2=1;P0=ledsmile[c1++];
+ 159   2                              delay1ms(1);
+ 160   2                              A0=0;A1=1;A2=1;P0=ledsmile[c1++];
+ 161   2                              delay1ms(1);
+ 162   2                              A0=1;A1=1;A2=1;P0=ledsmile[c1++];
+ 163   2                              delay1ms(1);    
+ 164   2                      if(select==0)
+ 165   2                      {
+ 166   3                              At24c16Write(0x011,000);
+ 167   3                              delay1ms(100);
+ 168   3                              At24c16Write(0x021,000);
+ 169   3                      }
+ 170   2              }
+ 171   1              beep = 1;P0=0;  
+ 172   1      }
+ 173          
+ 174          
+ 175          void displaynumber(u8 n)//8*8点阵数字显示0~10
+ 176          {
+ 177   1              u8 c1=0;
+ 178   1              u8 c3=0;
+ 179   1              u8 c0=n*8;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 4   
+
+ 180   1              for(c3=0;c3<50;c3++)
+ 181   1              {       
+ 182   2                      c1=0;
+ 183   2                      A0=0;A1=0;A2=0;P0=number[c0+c1++];
+ 184   2                      delay1ms(1);
+ 185   2                      A0=1;A1=0;A2=0;P0=number[c0+c1++];
+ 186   2                      delay1ms(1);    
+ 187   2                      A0=0;A1=1;A2=0;P0=number[c0+c1++];
+ 188   2                      delay1ms(1);
+ 189   2                      A0=1;A1=1;A2=0;P0=number[c0+c1++];
+ 190   2                      delay1ms(1);
+ 191   2                      A0=0;A1=0;A2=1;P0=number[c0+c1++];
+ 192   2                      delay1ms(1);
+ 193   2                      A0=1;A1=0;A2=1;P0=number[c0+c1++];
+ 194   2                      delay1ms(1);
+ 195   2                      A0=0;A1=1;A2=1;P0=number[c0+c1++];
+ 196   2                      delay1ms(1);
+ 197   2                      A0=1;A1=1;A2=1;P0=number[c0+c1++];
+ 198   2                      delay1ms(1);
+ 199   2              }
+ 200   1      }
+ 201          void displaynumber10(u8 n)//显示限时模式数字
+ 202          {
+ 203   1              u8 c1=0;
+ 204   1              u8 c3=0;
+ 205   1              u8 c0=n*8;
+ 206   1              for(c3=0;c3<50;c3++)
+ 207   1              {       
+ 208   2                      c1=0;
+ 209   2                      A0=0;A1=0;A2=0;P0=number_shi[c0+c1++];
+ 210   2                      delay1ms(1);
+ 211   2                      A0=1;A1=0;A2=0;P0=number_shi[c0+c1++];
+ 212   2                      delay1ms(1);    
+ 213   2                      A0=0;A1=1;A2=0;P0=number_shi[c0+c1++];
+ 214   2                      delay1ms(1);
+ 215   2                      A0=1;A1=1;A2=0;P0=number_shi[c0+c1++];
+ 216   2                      delay1ms(1);
+ 217   2                      A0=0;A1=0;A2=1;P0=number_shi[c0+c1++];
+ 218   2                      delay1ms(1);
+ 219   2                      A0=1;A1=0;A2=1;P0=number_shi[c0+c1++];
+ 220   2                      delay1ms(1);
+ 221   2                      A0=0;A1=1;A2=1;P0=number_shi[c0+c1++];
+ 222   2                      delay1ms(1);
+ 223   2                      A0=1;A1=1;A2=1;P0=number_shi[c0+c1++];
+ 224   2                      delay1ms(1);
+ 225   2              }
+ 226   1      }
+ 227          
+ 228          void displayT()//显示定时模式界面
+ 229          {
+ 230   1              u16 c1=0,c4=0;
+ 231   1      
+ 232   1              for(;c4<100;c4++)
+ 233   1              {
+ 234   2                              c1 = 0;
+ 235   2                              A0=0;A1=0;A2=0;P0=ledstar[c1++];
+ 236   2                              delay1ms(1);
+ 237   2                              A0=1;A1=0;A2=0;P0=ledstar[c1++];
+ 238   2                              delay1ms(1);    
+ 239   2                              A0=0;A1=1;A2=0;P0=ledstar[c1++];
+ 240   2                              delay1ms(1);
+ 241   2                              A0=1;A1=1;A2=0;P0=ledstar[c1++];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 5   
+
+ 242   2                              delay1ms(1);
+ 243   2                              A0=0;A1=0;A2=1;P0=ledstar[c1++];
+ 244   2                              delay1ms(1);
+ 245   2                              A0=1;A1=0;A2=1;P0=ledstar[c1++];
+ 246   2                              delay1ms(1);
+ 247   2                              A0=0;A1=1;A2=1;P0=ledstar[c1++];
+ 248   2                              delay1ms(1);
+ 249   2                              A0=1;A1=1;A2=1;P0=ledstar[c1++];
+ 250   2                              delay1ms(1);
+ 251   2              }
+ 252   1              P0=0;
+ 253   1      }
+ 254          
+ 255          void displayGo()//显示开机Go界面
+ 256          {
+ 257   1              u16 c1 = 0,c4 = 0;
+ 258   1              for(c4=0;c4<250;c4++)
+ 259   1              {
+ 260   2                              c1 = 0;
+ 261   2                              A0=0;A1=0;A2=0;P0=ledGo[c1++];
+ 262   2                              delay1ms(1);
+ 263   2                              A0=1;A1=0;A2=0;P0=ledGo[c1++];
+ 264   2                              delay1ms(1);    
+ 265   2                              A0=0;A1=1;A2=0;P0=ledGo[c1++];
+ 266   2                              delay1ms(1);
+ 267   2                              A0=1;A1=1;A2=0;P0=ledGo[c1++];
+ 268   2                              delay1ms(1);
+ 269   2                              A0=0;A1=0;A2=1;P0=ledGo[c1++];
+ 270   2                              delay1ms(1);
+ 271   2                              A0=1;A1=0;A2=1;P0=ledGo[c1++];
+ 272   2                              delay1ms(1);
+ 273   2                              A0=0;A1=1;A2=1;P0=ledGo[c1++];
+ 274   2                              delay1ms(1);
+ 275   2                              A0=1;A1=1;A2=1;P0=ledGo[c1++];
+ 276   2                              delay1ms(1);
+ 277   2              }
+ 278   1      }
+ 279          void displayV()//显示字母V
+ 280          {
+ 281   1              u16 c1=0,c4=0;
+ 282   1              beep = 0;
+ 283   1              for(;c4<500;c4++)
+ 284   1              {
+ 285   2                              c1 = 0;
+ 286   2                              A0=0;A1=0;A2=0;P0=ledV[c1++];
+ 287   2                              delay1ms(1);
+ 288   2                              A0=1;A1=0;A2=0;P0=ledV[c1++];
+ 289   2                              delay1ms(1);    
+ 290   2                              A0=0;A1=1;A2=0;P0=ledV[c1++];
+ 291   2                              delay1ms(1);
+ 292   2                              A0=1;A1=1;A2=0;P0=ledV[c1++];
+ 293   2                              delay1ms(1);
+ 294   2                              A0=0;A1=0;A2=1;P0=ledV[c1++];
+ 295   2                              delay1ms(1);
+ 296   2                              A0=1;A1=0;A2=1;P0=ledV[c1++];
+ 297   2                              delay1ms(1);
+ 298   2                              A0=0;A1=1;A2=1;P0=ledV[c1++];
+ 299   2                              delay1ms(1);
+ 300   2                              A0=1;A1=1;A2=1;P0=ledV[c1++];
+ 301   2                              delay1ms(1);
+ 302   2              }
+ 303   1              beep = 1;P0=0;  
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 6   
+
+ 304   1      }
+ 305             
+ 306          void mouse(u8 p,u8 l)//打地鼠游戏执行函数
+ 307          {
+ 308   1          u16 c3=0;
+ 309   1          u16 u= abs(l-4)*4000;//通过控制显示时间和检测时间区别难度
+ 310   1          switch (p)
+ 311   1          {
+ 312   2          case 1:
+ 313   2              for(c3=0; c3<u; c3++)
+ 314   2              {
+ 315   3                  A0=0;
+ 316   3                  A1=0;
+ 317   3                  A2=0;
+ 318   3                  P0=ledduan[0];
+ 319   3                  delay(1);
+ 320   3                  A0=1;
+ 321   3                  A1=0;
+ 322   3                  A2=0;
+ 323   3                  P0=ledduan[0];
+ 324   3                  delay(1);
+ 325   3      
+ 326   3                  if(Keydown()==p)
+ 327   3                  {
+ 328   4                      score++;
+ 329   4                      beep=0;
+ 330   4                      delay(3000);
+ 331   4                      beep=1;
+ 332   4                      break;
+ 333   4                  }
+ 334   3                  if(Keydown())
+ 335   3                  {
+ 336   4                      beep=0;
+ 337   4                      delay(3000);
+ 338   4                      beep=1;
+ 339   4                      continue;
+ 340   4                  }
+ 341   3              }
+ 342   2              break;
+ 343   2      
+ 344   2          case 2:
+ 345   2              for(c3=0; c3<u; c3++)
+ 346   2              {
+ 347   3                  A0=0;
+ 348   3                  A1=1;
+ 349   3                  A2=0;
+ 350   3                  P0=ledduan[0];
+ 351   3                  delay(1);
+ 352   3                  A0=1;
+ 353   3                  A1=1;
+ 354   3                  A2=0;
+ 355   3                  P0=ledduan[0];
+ 356   3                  delay(1);
+ 357   3      
+ 358   3                  if(Keydown()==p)
+ 359   3                  {
+ 360   4                      beep=0;
+ 361   4                      delay(3000);
+ 362   4                      beep=1;
+ 363   4                      score++;
+ 364   4                      break;
+ 365   4                  }
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 7   
+
+ 366   3                  if(Keydown())
+ 367   3                  {
+ 368   4                      beep=0;
+ 369   4                      delay(3000);
+ 370   4                      beep=1;
+ 371   4                      continue;
+ 372   4                  }
+ 373   3              }
+ 374   2              break;
+ 375   2      
+ 376   2          case 3:
+ 377   2              for(c3=0; c3<u; c3++)
+ 378   2              {
+ 379   3                  A0=0;
+ 380   3                  A1=0;
+ 381   3                  A2=1;
+ 382   3                  P0=ledduan[0];
+ 383   3                  delay(1);
+ 384   3                  A0=1;
+ 385   3                  A1=0;
+ 386   3                  A2=1;
+ 387   3                  P0=ledduan[0];
+ 388   3                  delay(1);
+ 389   3      
+ 390   3                  if(Keydown()==p)
+ 391   3                  {
+ 392   4                      beep=0;
+ 393   4                      delay(3000);
+ 394   4                      beep=1;
+ 395   4                      score++;
+ 396   4                      break;
+ 397   4                  }
+ 398   3                  if(Keydown())
+ 399   3                  {
+ 400   4                      beep=0;
+ 401   4                      delay(3000);
+ 402   4                      beep=1;
+ 403   4                      continue;
+ 404   4                  }
+ 405   3              }
+ 406   2              break;
+ 407   2          case 4:
+ 408   2              for(c3=0; c3<u; c3++)
+ 409   2              {
+ 410   3                  A0=0;
+ 411   3                  A1=1;
+ 412   3                  A2=1;
+ 413   3                  P0=ledduan[0];
+ 414   3                  delay(1);
+ 415   3                  A0=1;
+ 416   3                  A1=1;
+ 417   3                  A2=1;
+ 418   3                  P0=ledduan[0];
+ 419   3                  delay(1);
+ 420   3      
+ 421   3                  if(Keydown()==p)
+ 422   3                  {
+ 423   4                      beep=0;
+ 424   4                      delay(3000);
+ 425   4                      beep=1;
+ 426   4                      score++;
+ 427   4                      break;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 8   
+
+ 428   4                  }
+ 429   3                  if(Keydown())
+ 430   3                  {
+ 431   4                      beep=0;
+ 432   4                      delay(3000);
+ 433   4                      beep=1;
+ 434   4                      continue;
+ 435   4                  }
+ 436   3              }
+ 437   2              break;
+ 438   2          case 5:
+ 439   2              for(c3=0; c3<u; c3++)
+ 440   2              {
+ 441   3                  A0=0;
+ 442   3                  A1=0;
+ 443   3                  A2=0;
+ 444   3                  P0=ledduan[1];
+ 445   3                  delay(1);
+ 446   3                  A0=1;
+ 447   3                  A1=0;
+ 448   3                  A2=0;
+ 449   3                  P0=ledduan[1];
+ 450   3                  delay(1);
+ 451   3      
+ 452   3                  if(Keydown()==p)
+ 453   3                  {
+ 454   4                      beep=0;
+ 455   4                      delay(3000);
+ 456   4                      beep=1;
+ 457   4                      score++;
+ 458   4                      break;
+ 459   4                  }
+ 460   3                  if(Keydown())
+ 461   3                  {
+ 462   4                      beep=0;
+ 463   4                      delay(3000);
+ 464   4                      beep=1;
+ 465   4                      continue;
+ 466   4                  }
+ 467   3              }
+ 468   2              break;
+ 469   2      
+ 470   2          case 6:
+ 471   2              for(c3=0; c3<u; c3++)
+ 472   2              {
+ 473   3                  A0=0;
+ 474   3                  A1=1;
+ 475   3                  A2=0;
+ 476   3                  P0=ledduan[1];
+ 477   3                  delay(1);
+ 478   3                  A0=1;
+ 479   3                  A1=1;
+ 480   3                  A2=0;
+ 481   3                  P0=ledduan[1];
+ 482   3                  delay(1);
+ 483   3      
+ 484   3                  if(Keydown()==p)
+ 485   3                  {
+ 486   4                      beep=0;
+ 487   4                      delay(3000);
+ 488   4                      beep=1;
+ 489   4                      score++;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 9   
+
+ 490   4                      break;
+ 491   4                  }
+ 492   3                  if(Keydown())
+ 493   3                  {
+ 494   4                      beep=0;
+ 495   4                      delay(3000);
+ 496   4                      beep=1;
+ 497   4                      continue;
+ 498   4                  }
+ 499   3              }
+ 500   2              break;
+ 501   2      
+ 502   2          case 7:
+ 503   2              for(c3=0; c3<u; c3++)
+ 504   2              {
+ 505   3                  A0=0;
+ 506   3                  A1=0;
+ 507   3                  A2=1;
+ 508   3                  P0=ledduan[1];
+ 509   3                  delay(1);
+ 510   3                  A0=1;
+ 511   3                  A1=0;
+ 512   3                  A2=1;
+ 513   3                  P0=ledduan[1];
+ 514   3                  delay(1);
+ 515   3      
+ 516   3                  if(Keydown()==p)
+ 517   3                  {
+ 518   4                      beep=0;
+ 519   4                      delay(3000);
+ 520   4                      beep=1;
+ 521   4                      score++;
+ 522   4                      break;
+ 523   4                  }
+ 524   3                  if(Keydown())
+ 525   3                  {
+ 526   4                      beep=0;
+ 527   4                      delay(3000);
+ 528   4                      beep=1;
+ 529   4                      continue;
+ 530   4                  }
+ 531   3              }
+ 532   2              break;
+ 533   2          case 8:
+ 534   2              for(c3=0; c3<u; c3++)
+ 535   2              {
+ 536   3                  A0=0;
+ 537   3                  A1=1;
+ 538   3                  A2=1;
+ 539   3                  P0=ledduan[1];
+ 540   3                  delay(1);
+ 541   3                  A0=1;
+ 542   3                  A1=1;
+ 543   3                  A2=1;
+ 544   3                  P0=ledduan[1];
+ 545   3                  delay(1);
+ 546   3      
+ 547   3                  if(Keydown()==p)
+ 548   3                  {
+ 549   4                      beep=0;
+ 550   4                      delay(3000);
+ 551   4                      beep=1;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 10  
+
+ 552   4                      score++;
+ 553   4                      break;
+ 554   4                  }
+ 555   3                  if(Keydown())
+ 556   3                  {
+ 557   4                      beep=0;
+ 558   4                      delay(3000);
+ 559   4                      beep=1;
+ 560   4                      continue;
+ 561   4                  }
+ 562   3              }
+ 563   2              break;
+ 564   2          case 9:
+ 565   2              for(c3=0; c3<u; c3++)
+ 566   2              {
+ 567   3                  A0=0;
+ 568   3                  A1=0;
+ 569   3                  A2=0;
+ 570   3                  P0=ledduan[2];
+ 571   3                  delay(1);
+ 572   3                  A0=1;
+ 573   3                  A1=0;
+ 574   3                  A2=0;
+ 575   3                  P0=ledduan[2];
+ 576   3                  delay(1);
+ 577   3      
+ 578   3                  if(Keydown()==p)
+ 579   3                  {
+ 580   4                      beep=0;
+ 581   4                      delay(3000);
+ 582   4                      beep=1;
+ 583   4                      score++;
+ 584   4                      break;
+ 585   4                  }
+ 586   3                  if(Keydown())
+ 587   3                  {
+ 588   4                      beep=0;
+ 589   4                      delay(3000);
+ 590   4                      beep=1;
+ 591   4                      continue;
+ 592   4                  }
+ 593   3              }
+ 594   2              break;
+ 595   2      
+ 596   2          case 10:
+ 597   2              for(c3=0; c3<u; c3++)
+ 598   2              {
+ 599   3                  A0=0;
+ 600   3                  A1=1;
+ 601   3                  A2=0;
+ 602   3                  P0=ledduan[2];
+ 603   3                  delay(1);
+ 604   3                  A0=1;
+ 605   3                  A1=1;
+ 606   3                  A2=0;
+ 607   3                  P0=ledduan[2];
+ 608   3                  delay(1);
+ 609   3      
+ 610   3                  if(Keydown()==p)
+ 611   3                  {
+ 612   4                      beep=0;
+ 613   4                      delay(3000);
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 11  
+
+ 614   4                      beep=1;
+ 615   4                      score++;
+ 616   4                      break;
+ 617   4                  }
+ 618   3                  if(Keydown())
+ 619   3                  {
+ 620   4                      beep=0;
+ 621   4                      delay(3000);
+ 622   4                      beep=1;
+ 623   4                      continue;
+ 624   4                  }
+ 625   3              }
+ 626   2              break;
+ 627   2          case 11:
+ 628   2              for(c3=0; c3<u; c3++)
+ 629   2              {
+ 630   3                  A0=0;
+ 631   3                  A1=0;
+ 632   3                  A2=1;
+ 633   3                  P0=ledduan[2];
+ 634   3                  delay(1);
+ 635   3                  A0=1;
+ 636   3                  A1=0;
+ 637   3                  A2=1;
+ 638   3                  P0=ledduan[2];
+ 639   3                  delay(1);
+ 640   3      
+ 641   3                  if(Keydown()==p)
+ 642   3                  {
+ 643   4                      beep=0;
+ 644   4                      delay(3000);
+ 645   4                      beep=1;
+ 646   4                      score++;
+ 647   4                      break;
+ 648   4                  }
+ 649   3                  if(Keydown())
+ 650   3                  {
+ 651   4                      beep=0;
+ 652   4                      delay(3000);
+ 653   4                      beep=1;
+ 654   4                      continue;
+ 655   4                  }
+ 656   3              }
+ 657   2              break;
+ 658   2          case 12:
+ 659   2              for(c3=0; c3<u; c3++)
+ 660   2              {
+ 661   3                  A0=0;
+ 662   3                  A1=1;
+ 663   3                  A2=1;
+ 664   3                  P0=ledduan[2];
+ 665   3                  delay(1);
+ 666   3                  A0=1;
+ 667   3                  A1=1;
+ 668   3                  A2=1;
+ 669   3                  P0=ledduan[2];
+ 670   3                  delay(1);
+ 671   3      
+ 672   3                  if(Keydown()==p)
+ 673   3                  {
+ 674   4                      beep=0;
+ 675   4                      delay(3000);
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 12  
+
+ 676   4                      beep=1;
+ 677   4                      score++;
+ 678   4                      break;
+ 679   4                  }
+ 680   3                  if(Keydown())
+ 681   3                  {
+ 682   4                      beep=0;
+ 683   4                      delay(3000);
+ 684   4                      beep=1;
+ 685   4                      continue;
+ 686   4                  }
+ 687   3              }
+ 688   2              break;
+ 689   2          case 13:
+ 690   2              for(c3=0; c3<u; c3++)
+ 691   2              {
+ 692   3                  A0=0;
+ 693   3                  A1=0;
+ 694   3                  A2=0;
+ 695   3                  P0=ledduan[3];
+ 696   3                  delay(1);
+ 697   3                  A0=1;
+ 698   3                  A1=0;
+ 699   3                  A2=0;
+ 700   3                  P0=ledduan[3];
+ 701   3                  delay(1);
+ 702   3      
+ 703   3                  if(Keydown()==p)
+ 704   3                  {
+ 705   4                      beep=0;
+ 706   4                      delay(3000);
+ 707   4                      beep=1;
+ 708   4                      score++;
+ 709   4                      break;
+ 710   4                  }
+ 711   3                  if(Keydown())
+ 712   3                  {
+ 713   4                      beep=0;
+ 714   4                      delay(3000);
+ 715   4                      beep=1;
+ 716   4                      continue;
+ 717   4                  }
+ 718   3              }
+ 719   2              break;
+ 720   2      
+ 721   2          case 14:
+ 722   2              for(c3=0; c3<u; c3++)
+ 723   2              {
+ 724   3                  A0=0;
+ 725   3                  A1=1;
+ 726   3                  A2=0;
+ 727   3                  P0=ledduan[3];
+ 728   3                  delay(1);
+ 729   3                  A0=1;
+ 730   3                  A1=1;
+ 731   3                  A2=0;
+ 732   3                  P0=ledduan[3];
+ 733   3                  delay(1);
+ 734   3      
+ 735   3                  if(Keydown()==p)
+ 736   3                  {
+ 737   4                      beep=0;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 13  
+
+ 738   4                      delay(3000);
+ 739   4                      beep=1;
+ 740   4                      score++;
+ 741   4                      break;
+ 742   4                  }
+ 743   3                  if(Keydown())
+ 744   3                  {
+ 745   4                      beep=0;
+ 746   4                      delay(3000);
+ 747   4                      beep=1;
+ 748   4                      continue;
+ 749   4                  }
+ 750   3              }
+ 751   2              break;
+ 752   2      
+ 753   2          case 15:
+ 754   2              for(c3=0; c3<u; c3++)
+ 755   2              {
+ 756   3                  A0=0;
+ 757   3                  A1=0;
+ 758   3                  A2=1;
+ 759   3                  P0=ledduan[3];
+ 760   3                  delay(1);
+ 761   3                  A0=1;
+ 762   3                  A1=0;
+ 763   3                  A2=1;
+ 764   3                  P0=ledduan[3];
+ 765   3                  delay(1);
+ 766   3      
+ 767   3                  if(Keydown()==p)
+ 768   3                  {
+ 769   4                      beep=0;
+ 770   4                      delay(3000);
+ 771   4                      beep=1;
+ 772   4                      score++;
+ 773   4                      break;
+ 774   4                  }
+ 775   3                  if(Keydown())
+ 776   3                  {
+ 777   4                      beep=0;
+ 778   4                      delay(3000);
+ 779   4                      beep=1;
+ 780   4                      continue;
+ 781   4                  }
+ 782   3              }
+ 783   2              break;
+ 784   2          case 16:
+ 785   2              for(c3=0; c3<u; c3++)
+ 786   2              {
+ 787   3                  A0=0;
+ 788   3                  A1=1;
+ 789   3                  A2=1;
+ 790   3                  P0=ledduan[3];
+ 791   3                  delay(1);
+ 792   3                  A0=1;
+ 793   3                  A1=1;
+ 794   3                  A2=1;
+ 795   3                  P0=ledduan[3];
+ 796   3                  delay(1);
+ 797   3      
+ 798   3                  if(Keydown()==p)
+ 799   3                  {
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 14  
+
+ 800   4                      beep=0;
+ 801   4                      delay(3000);
+ 802   4                      beep=1;
+ 803   4                      score++;
+ 804   4                      break;
+ 805   4                  }
+ 806   3                  if(Keydown())
+ 807   3                  {
+ 808   4                      beep=0;
+ 809   4                      delay(3000);
+ 810   4                      beep=1;
+ 811   4                      continue;
+ 812   4                  }
+ 813   3              }
+ 814   2              break;
+ 815   2          }
+ 816   1      }
+ 817          
+ 818          void LevelSelect()//难度选择
+ 819          {
+ 820   1          P0=0;
+ 821   1          select=1;
+ 822   1          enter=1;
+ 823   1          while(enter)
+ 824   1          {
+ 825   2      
+ 826   2              if(level>3)
+ 827   2              {
+ 828   3                  level=1;
+ 829   3              }
+ 830   2              if(select==0)
+ 831   2              {
+ 832   3                  while(!select);
+ 833   3                  level++;
+ 834   3              }
+ 835   2              displaynumber(level);
+ 836   2          }
+ 837   1          if(enter==0)
+ 838   1          {
+ 839   2              displayGo();
+ 840   2              P0=0;
+ 841   2          }
+ 842   1      }
+ 843          
+ 844          void mouse1(u8 p,u8 l)//打地鼠游戏执行函数
+ 845          {
+ 846   1          u16 c3=0;
+ 847   1          u16 u= abs(l-4)*3000;//通过控制显示时间和检测时间区别难度
+ 848   1          switch (p)
+ 849   1          {
+ 850   2          case 1:
+ 851   2              for(c3=0; c3<u; c3++)
+ 852   2              {
+ 853   3                  A0=0;
+ 854   3                  A1=0;
+ 855   3                  A2=0;
+ 856   3                  P0=ledduan[0];
+ 857   3                  delay(1);
+ 858   3                  A0=1;
+ 859   3                  A1=0;
+ 860   3                  A2=0;
+ 861   3                  P0=ledduan[0];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 15  
+
+ 862   3                  delay(1);
+ 863   3      
+ 864   3                  if(Keydown1()==p)
+ 865   3                  {
+ 866   4                      score++;
+ 867   4                      beep=0;
+ 868   4                      delay(3000);
+ 869   4                      beep=1;
+ 870   4                      break;
+ 871   4                  }
+ 872   3                  if(Keydown1())
+ 873   3                  {
+ 874   4                      beep=0;
+ 875   4                      delay(3000);
+ 876   4                      beep=1;
+ 877   4                      continue;
+ 878   4                  }
+ 879   3              }
+ 880   2              break;
+ 881   2      
+ 882   2          case 2:
+ 883   2              for(c3=0; c3<u; c3++)
+ 884   2              {
+ 885   3                  A0=0;
+ 886   3                  A1=1;
+ 887   3                  A2=0;
+ 888   3                  P0=ledduan[0];
+ 889   3                  delay(1);
+ 890   3                  A0=1;
+ 891   3                  A1=1;
+ 892   3                  A2=0;
+ 893   3                  P0=ledduan[0];
+ 894   3                  delay(1);
+ 895   3      
+ 896   3                  if(Keydown1()==p)
+ 897   3                  {
+ 898   4                      beep=0;
+ 899   4                      delay(3000);
+ 900   4                      beep=1;
+ 901   4                      score++;
+ 902   4                      break;
+ 903   4                  }
+ 904   3                  if(Keydown1())
+ 905   3                  {
+ 906   4                      beep=0;
+ 907   4                      delay(3000);
+ 908   4                      beep=1;
+ 909   4                      continue;
+ 910   4                  }
+ 911   3              }
+ 912   2              break;
+ 913   2      
+ 914   2          case 3:
+ 915   2              for(c3=0; c3<u; c3++)
+ 916   2              {
+ 917   3                  A0=0;
+ 918   3                  A1=0;
+ 919   3                  A2=1;
+ 920   3                  P0=ledduan[0];
+ 921   3                  delay(1);
+ 922   3                  A0=1;
+ 923   3                  A1=0;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 16  
+
+ 924   3                  A2=1;
+ 925   3                  P0=ledduan[0];
+ 926   3                  delay(1);
+ 927   3      
+ 928   3                  if(Keydown1()==p)
+ 929   3                  {
+ 930   4                      beep=0;
+ 931   4                      delay(3000);
+ 932   4                      beep=1;
+ 933   4                      score++;
+ 934   4                      break;
+ 935   4                  }
+ 936   3                  if(Keydown1())
+ 937   3                  {
+ 938   4                      beep=0;
+ 939   4                      delay(3000);
+ 940   4                      beep=1;
+ 941   4                      continue;
+ 942   4                  }
+ 943   3              }
+ 944   2              break;
+ 945   2          case 4:
+ 946   2              for(c3=0; c3<u; c3++)
+ 947   2              {
+ 948   3                  A0=0;
+ 949   3                  A1=1;
+ 950   3                  A2=1;
+ 951   3                  P0=ledduan[0];
+ 952   3                  delay(1);
+ 953   3                  A0=1;
+ 954   3                  A1=1;
+ 955   3                  A2=1;
+ 956   3                  P0=ledduan[0];
+ 957   3                  delay(1);
+ 958   3      
+ 959   3                  if(Keydown1()==p)
+ 960   3                  {
+ 961   4                      beep=0;
+ 962   4                      delay(3000);
+ 963   4                      beep=1;
+ 964   4                      score++;
+ 965   4                      break;
+ 966   4                  }
+ 967   3                  if(Keydown1())
+ 968   3                  {
+ 969   4                      beep=0;
+ 970   4                      delay(3000);
+ 971   4                      beep=1;
+ 972   4                      continue;
+ 973   4                  }
+ 974   3              }
+ 975   2              break;
+ 976   2          case 5:
+ 977   2              for(c3=0; c3<u; c3++)
+ 978   2              {
+ 979   3                  A0=0;
+ 980   3                  A1=0;
+ 981   3                  A2=0;
+ 982   3                  P0=ledduan[1];
+ 983   3                  delay(1);
+ 984   3                  A0=1;
+ 985   3                  A1=0;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 17  
+
+ 986   3                  A2=0;
+ 987   3                  P0=ledduan[1];
+ 988   3                  delay(1);
+ 989   3      
+ 990   3                  if(Keydown1()==p)
+ 991   3                  {
+ 992   4                      beep=0;
+ 993   4                      delay(3000);
+ 994   4                      beep=1;
+ 995   4                      score++;
+ 996   4                      break;
+ 997   4                  }
+ 998   3                  if(Keydown1())
+ 999   3                  {
+1000   4                      beep=0;
+1001   4                      delay(3000);
+1002   4                      beep=1;
+1003   4                      continue;
+1004   4                  }
+1005   3              }
+1006   2              break;
+1007   2      
+1008   2          case 6:
+1009   2              for(c3=0; c3<u; c3++)
+1010   2              {
+1011   3                  A0=0;
+1012   3                  A1=1;
+1013   3                  A2=0;
+1014   3                  P0=ledduan[1];
+1015   3                  delay(1);
+1016   3                  A0=1;
+1017   3                  A1=1;
+1018   3                  A2=0;
+1019   3                  P0=ledduan[1];
+1020   3                  delay(1);
+1021   3      
+1022   3                  if(Keydown1()==p)
+1023   3                  {
+1024   4                      beep=0;
+1025   4                      delay(3000);
+1026   4                      beep=1;
+1027   4                      score++;
+1028   4                      break;
+1029   4                  }
+1030   3                  if(Keydown1())
+1031   3                  {
+1032   4                      beep=0;
+1033   4                      delay(3000);
+1034   4                      beep=1;
+1035   4                      continue;
+1036   4                  }
+1037   3              }
+1038   2              break;
+1039   2      
+1040   2          case 7:
+1041   2              for(c3=0; c3<u; c3++)
+1042   2              {
+1043   3                  A0=0;
+1044   3                  A1=0;
+1045   3                  A2=1;
+1046   3                  P0=ledduan[1];
+1047   3                  delay(1);
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 18  
+
+1048   3                  A0=1;
+1049   3                  A1=0;
+1050   3                  A2=1;
+1051   3                  P0=ledduan[1];
+1052   3                  delay(1);
+1053   3      
+1054   3                  if(Keydown1()==p)
+1055   3                  {
+1056   4                      beep=0;
+1057   4                      delay(3000);
+1058   4                      beep=1;
+1059   4                      score++;
+1060   4                      break;
+1061   4                  }
+1062   3                  if(Keydown1())
+1063   3                  {
+1064   4                      beep=0;
+1065   4                      delay(3000);
+1066   4                      beep=1;
+1067   4                      continue;
+1068   4                  }
+1069   3              }
+1070   2              break;
+1071   2          case 8:
+1072   2              for(c3=0; c3<u; c3++)
+1073   2              {
+1074   3                  A0=0;
+1075   3                  A1=1;
+1076   3                  A2=1;
+1077   3                  P0=ledduan[1];
+1078   3                  delay(1);
+1079   3                  A0=1;
+1080   3                  A1=1;
+1081   3                  A2=1;
+1082   3                  P0=ledduan[1];
+1083   3                  delay(1);
+1084   3      
+1085   3                  if(Keydown1()==p)
+1086   3                  {
+1087   4                      beep=0;
+1088   4                      delay(3000);
+1089   4                      beep=1;
+1090   4                      score++;
+1091   4                      break;
+1092   4                  }
+1093   3                  if(Keydown1())
+1094   3                  {
+1095   4                      beep=0;
+1096   4                      delay(3000);
+1097   4                      beep=1;
+1098   4                      continue;
+1099   4                  }
+1100   3              }
+1101   2              break;
+1102   2          case 9:
+1103   2              for(c3=0; c3<u; c3++)
+1104   2              {
+1105   3                  A0=0;
+1106   3                  A1=0;
+1107   3                  A2=0;
+1108   3                  P0=ledduan[2];
+1109   3                  delay(1);
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 19  
+
+1110   3                  A0=1;
+1111   3                  A1=0;
+1112   3                  A2=0;
+1113   3                  P0=ledduan[2];
+1114   3                  delay(1);
+1115   3      
+1116   3                  if(Keydown1()==p)
+1117   3                  {
+1118   4                      beep=0;
+1119   4                      delay(3000);
+1120   4                      beep=1;
+1121   4                      score++;
+1122   4                      break;
+1123   4                  }
+1124   3                  if(Keydown1())
+1125   3                  {
+1126   4                      beep=0;
+1127   4                      delay(3000);
+1128   4                      beep=1;
+1129   4                      continue;
+1130   4                  }
+1131   3              }
+1132   2              break;
+1133   2      
+1134   2          case 10:
+1135   2              for(c3=0; c3<u; c3++)
+1136   2              {
+1137   3                  A0=0;
+1138   3                  A1=1;
+1139   3                  A2=0;
+1140   3                  P0=ledduan[2];
+1141   3                  delay(1);
+1142   3                  A0=1;
+1143   3                  A1=1;
+1144   3                  A2=0;
+1145   3                  P0=ledduan[2];
+1146   3                  delay(1);
+1147   3      
+1148   3                  if(Keydown1()==p)
+1149   3                  {
+1150   4                      beep=0;
+1151   4                      delay(3000);
+1152   4                      beep=1;
+1153   4                      score++;
+1154   4                      break;
+1155   4                  }
+1156   3                  if(Keydown1())
+1157   3                  {
+1158   4                      beep=0;
+1159   4                      delay(3000);
+1160   4                      beep=1;
+1161   4                      continue;
+1162   4                  }
+1163   3              }
+1164   2              break;
+1165   2          case 11:
+1166   2              for(c3=0; c3<u; c3++)
+1167   2              {
+1168   3                  A0=0;
+1169   3                  A1=0;
+1170   3                  A2=1;
+1171   3                  P0=ledduan[2];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 20  
+
+1172   3                  delay(1);
+1173   3                  A0=1;
+1174   3                  A1=0;
+1175   3                  A2=1;
+1176   3                  P0=ledduan[2];
+1177   3                  delay(1);
+1178   3      
+1179   3                  if(Keydown1()==p)
+1180   3                  {
+1181   4                      beep=0;
+1182   4                      delay(3000);
+1183   4                      beep=1;
+1184   4                      score++;
+1185   4                      break;
+1186   4                  }
+1187   3                  if(Keydown1())
+1188   3                  {
+1189   4                      beep=0;
+1190   4                      delay(3000);
+1191   4                      beep=1;
+1192   4                      continue;
+1193   4                  }
+1194   3              }
+1195   2              break;
+1196   2          case 12:
+1197   2              for(c3=0; c3<u; c3++)
+1198   2              {
+1199   3                  A0=0;
+1200   3                  A1=1;
+1201   3                  A2=1;
+1202   3                  P0=ledduan[2];
+1203   3                  delay(1);
+1204   3                  A0=1;
+1205   3                  A1=1;
+1206   3                  A2=1;
+1207   3                  P0=ledduan[2];
+1208   3                  delay(1);
+1209   3      
+1210   3                  if(Keydown1()==p)
+1211   3                  {
+1212   4                      beep=0;
+1213   4                      delay(3000);
+1214   4                      beep=1;
+1215   4                      score++;
+1216   4                      break;
+1217   4                  }
+1218   3                  if(Keydown1())
+1219   3                  {
+1220   4                      beep=0;
+1221   4                      delay(3000);
+1222   4                      beep=1;
+1223   4                      continue;
+1224   4                  }
+1225   3              }
+1226   2              break;
+1227   2          case 13:
+1228   2              for(c3=0; c3<u; c3++)
+1229   2              {
+1230   3                  A0=0;
+1231   3                  A1=0;
+1232   3                  A2=0;
+1233   3                  P0=ledduan[3];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 21  
+
+1234   3                  delay(1);
+1235   3                  A0=1;
+1236   3                  A1=0;
+1237   3                  A2=0;
+1238   3                  P0=ledduan[3];
+1239   3                  delay(1);
+1240   3      
+1241   3                  if(Keydown1()==p)
+1242   3                  {
+1243   4                      beep=0;
+1244   4                      delay(3000);
+1245   4                      beep=1;
+1246   4                      score++;
+1247   4                      break;
+1248   4                  }
+1249   3                  if(Keydown1())
+1250   3                  {
+1251   4                      beep=0;
+1252   4                      delay(3000);
+1253   4                      beep=1;
+1254   4                      continue;
+1255   4                  }
+1256   3              }
+1257   2              break;
+1258   2      
+1259   2          case 14:
+1260   2              for(c3=0; c3<u; c3++)
+1261   2              {
+1262   3                  A0=0;
+1263   3                  A1=1;
+1264   3                  A2=0;
+1265   3                  P0=ledduan[3];
+1266   3                  delay(1);
+1267   3                  A0=1;
+1268   3                  A1=1;
+1269   3                  A2=0;
+1270   3                  P0=ledduan[3];
+1271   3                  delay(1);
+1272   3      
+1273   3                  if(Keydown1()==p)
+1274   3                  {
+1275   4                      beep=0;
+1276   4                      delay(3000);
+1277   4                      beep=1;
+1278   4                      score++;
+1279   4                      break;
+1280   4                  }
+1281   3                  if(Keydown1())
+1282   3                  {
+1283   4                      beep=0;
+1284   4                      delay(3000);
+1285   4                      beep=1;
+1286   4                      continue;
+1287   4                  }
+1288   3              }
+1289   2              break;
+1290   2      
+1291   2          case 15:
+1292   2              for(c3=0; c3<u; c3++)
+1293   2              {
+1294   3                  A0=0;
+1295   3                  A1=0;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 22  
+
+1296   3                  A2=1;
+1297   3                  P0=ledduan[3];
+1298   3                  delay(1);
+1299   3                  A0=1;
+1300   3                  A1=0;
+1301   3                  A2=1;
+1302   3                  P0=ledduan[3];
+1303   3                  delay(1);
+1304   3      
+1305   3                  if(Keydown1()==p)
+1306   3                  {
+1307   4                      beep=0;
+1308   4                      delay(3000);
+1309   4                      beep=1;
+1310   4                      score++;
+1311   4                      break;
+1312   4                  }
+1313   3                  if(Keydown1())
+1314   3                  {
+1315   4                      beep=0;
+1316   4                      delay(3000);
+1317   4                      beep=1;
+1318   4                      continue;
+1319   4                  }
+1320   3              }
+1321   2              break;
+1322   2          case 16:
+1323   2              for(c3=0; c3<u; c3++)
+1324   2              {
+1325   3                  A0=0;
+1326   3                  A1=1;
+1327   3                  A2=1;
+1328   3                  P0=ledduan[3];
+1329   3                  delay(1);
+1330   3                  A0=1;
+1331   3                  A1=1;
+1332   3                  A2=1;
+1333   3                  P0=ledduan[3];
+1334   3                  delay(1);
+1335   3      
+1336   3                  if(Keydown1()==p)
+1337   3                  {
+1338   4                      beep=0;
+1339   4                      delay(3000);
+1340   4                      beep=1;
+1341   4                      score++;
+1342   4                      break;
+1343   4                  }
+1344   3                  if(Keydown1())
+1345   3                  {
+1346   4                      beep=0;
+1347   4                      delay(3000);
+1348   4                      beep=1;
+1349   4                      continue;
+1350   4                  }
+1351   3              }
+1352   2              break;
+1353   2      
+1354   2      
+1355   2          }
+1356   1      }
+1357          u8 Keydown()//按键检测
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 23  
+
+1358          {
+1359   1          u8 line=0,row=0;
+1360   1          P2=0X0F;
+1361   1          switch(P2)
+1362   1          {
+1363   2          case 0x07:
+1364   2              line=1;
+1365   2              break;
+1366   2          case 0x0b:
+1367   2              line=2;
+1368   2              break;
+1369   2          case 0x0d:
+1370   2              line=3;
+1371   2              break;
+1372   2          case 0x0e:
+1373   2              line=4;
+1374   2              break;
+1375   2          default:
+1376   2              return 0;
+1377   2          }
+1378   1          P2=0XF0;
+1379   1          switch(P2)
+1380   1          {
+1381   2          case 0x70:
+1382   2              row=1;
+1383   2              break;
+1384   2          case 0xb0:
+1385   2              row=2;
+1386   2              break;
+1387   2          case 0xd0:
+1388   2              row=3;
+1389   2              break;
+1390   2          case 0xe0:
+1391   2              row=4;
+1392   2              break;
+1393   2          default:
+1394   2              return 0;
+1395   2          }
+1396   1          P2=0X0F;
+1397   1          while(P2!=0X0F);
+1398   1          return (row-1)*4+line;
+1399   1      }
+1400          
+1401          
+1402          u8 Keydown1()//按键检测
+1403          {
+1404   1          u8 line=0,row=0;
+1405   1          P2=0X0F;
+1406   1          switch(P2)
+1407   1          {
+1408   2          case 0x07:
+1409   2              line=1;
+1410   2              break;
+1411   2          case 0x0b:
+1412   2              line=2;
+1413   2              break;
+1414   2          case 0x0d:
+1415   2              line=3;
+1416   2              break;
+1417   2          case 0x0e:
+1418   2              line=4;
+1419   2              break;
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 24  
+
+1420   2          default:
+1421   2              return 0;
+1422   2          }
+1423   1          P2=0XF0;
+1424   1          switch(P2)
+1425   1          {
+1426   2          case 0x70:
+1427   2              row=1;
+1428   2              break;
+1429   2          case 0xb0:
+1430   2              row=2;
+1431   2              break;
+1432   2          case 0xd0:
+1433   2              row=3;
+1434   2              break;
+1435   2          case 0xe0:
+1436   2              row=4;
+1437   2              break;
+1438   2          default:
+1439   2              return 0;
+1440   2          }
+1441   1          P2=0X0F;
+1442   1          while(P2!=0X0F);
+1443   1          return (row-1)*4+line;
+1444   1      }
+1445          
+1446          void gamefunc()//传入位置数组判断游戏模式执行游戏
+1447          {
+1448   1          u8 f=0;
+1449   1          score=0;
+1450   1      
+1451   1          if(flag_limit==0)
+1452   1          {
+1453   2              displaynumber(max1);
+1454   2              for(f=0; f<10; f++)
+1455   2              {
+1456   3                  mouse(position1[f],level);
+1457   3              }
+1458   2              P0=0;
+1459   2              if(score>max1)
+1460   2              {
+1461   3                  displayV();
+1462   3                  max1=score;
+1463   3                  At24c16Write(0x011,max1);
+1464   3              }
+1465   2              for(j=0; j<10; j++)
+1466   2              {
+1467   3                  displayscore1();
+1468   3              }
+1469   2          }
+1470   1      
+1471   1          if(flag_limit==1)
+1472   1          {
+1473   2              displayT();
+1474   2              displaynumber10(max2);
+1475   2              InitTimer0();//设置定时器中断
+1476   2              for(; TIME1<5;)
+1477   2              {
+1478   3                  if(f>=20)
+1479   3                  {
+1480   4                      f=0;
+1481   4                  }
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 25  
+
+1482   3                  mouse1(position2[f++],level);
+1483   3              }
+1484   2                      TR0=0;
+1485   2              TIME1=0;
+1486   2              P0=0;
+1487   2              if(score>max2)
+1488   2              {
+1489   3                  displayV();
+1490   3                  max2=score;
+1491   3                  At24c16Write(0x021,max2);
+1492   3              }
+1493   2              for(j=0; j<10; j++)
+1494   2              {
+1495   3                  displayscore10();
+1496   3              }
+1497   2          }
+1498   1      }
+1499          
+1500          void displayscore1()//显示经典模式分数
+1501          {
+1502   1              u8 c1=0;
+1503   1              u8 c3=0;
+1504   1              u8 c0=score*8;
+1505   1              for(c3=0;c3<50;c3++)
+1506   1              {
+1507   2                      c1=0;
+1508   2                      A0=0;A1=0;A2=0;P0=number[c0+c1++];
+1509   2                      delay1ms(1);
+1510   2                      A0=1;A1=0;A2=0;P0=number[c0+c1++];
+1511   2                      delay1ms(1);    
+1512   2                      A0=0;A1=1;A2=0;P0=number[c0+c1++];
+1513   2                      delay1ms(1);
+1514   2                      A0=1;A1=1;A2=0;P0=number[c0+c1++];
+1515   2                      delay1ms(1);
+1516   2                      A0=0;A1=0;A2=1;P0=number[c0+c1++];
+1517   2                      delay1ms(1);
+1518   2                      A0=1;A1=0;A2=1;P0=number[c0+c1++];
+1519   2                      delay1ms(1);
+1520   2                      A0=0;A1=1;A2=1;P0=number[c0+c1++];
+1521   2                      delay1ms(1);
+1522   2                      A0=1;A1=1;A2=1;P0=number[c0+c1++];
+1523   2                      delay1ms(1);
+1524   2              }
+1525   1      
+1526   1      }
+1527          
+1528          void displayscore10()//显示限时模式分数
+1529          {
+1530   1              u8 c1=0;
+1531   1              u8 c3=0;
+1532   1              u8 c0=score*8;
+1533   1      
+1534   1              for(c3=0;c3<50;c3++)
+1535   1              {
+1536   2                      c1=0;
+1537   2                      A0=0;A1=0;A2=0;P0=number_shi[c0+c1++];
+1538   2                      delay1ms(1);
+1539   2                      A0=1;A1=0;A2=0;P0=number_shi[c0+c1++];
+1540   2                      delay1ms(1);    
+1541   2                      A0=0;A1=1;A2=0;P0=number_shi[c0+c1++];
+1542   2                      delay1ms(1);
+1543   2                      A0=1;A1=1;A2=0;P0=number_shi[c0+c1++];
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 26  
+
+1544   2                      delay1ms(1);
+1545   2                      A0=0;A1=0;A2=1;P0=number_shi[c0+c1++];
+1546   2                      delay1ms(1);
+1547   2                      A0=1;A1=0;A2=1;P0=number_shi[c0+c1++];
+1548   2                      delay1ms(1);
+1549   2                      A0=0;A1=1;A2=1;P0=number_shi[c0+c1++];
+1550   2                      delay1ms(1);
+1551   2                      A0=1;A1=1;A2=1;P0=number_shi[c0+c1++];
+1552   2                      delay1ms(1);
+1553   2              }
+1554   1      
+1555   1      }
+1556          
+1557          void IntInit()//中断函数初始化
+1558          {
+1559   1          IT0=1;//跳变沿出发方式（下降沿）
+1560   1          EX0=1;//打开INT0的中断允许
+1561   1          IT1=1;//跳变沿出发方式（下降沿）
+1562   1          EX1=1;//打开INT1的中断允许
+1563   1          IP=1;//设置INT0为最高优先级
+1564   1          EA=1;//打开总中断
+1565   1      }
+1566          
+1567          void InitTimer0()//定时器0方式1初始化，10ms
+1568          {
+1569   1          TMOD = 0x01;
+1570   1          TH0 = 0xDC;
+1571   1          TL0 = 0x00;
+1572   1          EA = 1;
+1573   1          ET0 = 1;
+1574   1          TR0 = 1;
+1575   1      }
+1576          
+1577          void main()//主函数
+1578          {
+1579   1              
+1580   1          P0=0;
+1581   1          IntInit();  //      设置外部中断0
+1582   1      
+1583   1              max1=At24c16Read(0x011);
+1584   1              delay1ms(100);
+1585   1              max2=At24c16Read(0x021);
+1586   1          check0();
+1587   1          displaysmile();
+1588   1          P0=0;
+1589   1          while(1)
+1590   1          {   
+1591   2      
+1592   2              LevelSelect();
+1593   2              srand(p++);
+1594   2              for (i = 0; i< NUM; i++)
+1595   2              {
+1596   3                  position1[i] = (rand()%16)+1;
+1597   3                  position2[i] = ((rand()%16)+level)%16+1;
+1598   3              }
+1599   2              //生成1到16的20个伪随机数存入位置数组
+1600   2              gamefunc();
+1601   2              P0=0;
+1602   2          }
+1603   1      }
+1604          
+1605          void Int1() interrupt 2 //外部中断1的中断函数
+C51 COMPILER V9.57.0.0   1                                                                 12/13/2020 00:37:41 PAGE 27  
+
+1606          {
+1607   1          u8 pause=0;
+1608   1          if(k1==0)
+1609   1          {
+1610   2              while(!k1);
+1611   2              pause=1;
+1612   2              while(pause)
+1613   2              {
+1614   3                  if(enter==0)
+1615   3                  {
+1616   4                     break;
+1617   4                  }
+1618   3              }
+1619   2          }
+1620   1      }
+1621          
+1622          
+1623          void Int0()     interrupt 0     //外部中断0的中断函数
+1624          {
+1625   1          if(k0==0)
+1626   1          {
+1627   2              while(!k0);
+1628   2              flag_limit = !(flag_limit);
+1629   2          }
+1630   1      }
+1631          
+1632          void Timer0Interrupt() interrupt 1//定时器0函数
+1633          {
+1634   1          TH0 = 0xDC;
+1635   1          TL0 = 0x00;
+1636   1          time++;//执行一次为10ms，time自增1
+1637   1          if(time>=100)
+1638   1          {
+1639   2              time=0;
+1640   2              TIME1++;
+1641   2          }
+1642   1      }//time=100n即为n秒
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   5247    ----
+   CONSTANT SIZE    =    228    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     52      27
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

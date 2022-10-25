@@ -1,0 +1,3 @@
+".\Objects\main.obj" 
+TO ".\Objects\lsled" 
+PRINT(".\Listings\lsled.m51") RAMSIZE(256) 

@@ -1,0 +1,66 @@
+C51 COMPILER V9.57.0.0   4_1                                                               10/12/2020 13:02:27 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE 4_1
+OBJECT MODULE PLACED IN .\Objects\4-1.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\4-1.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\4-1.lst) OBJECT(.\Objects\4-1.obj)
+
+line level    source
+
+   1          /**********************************************************************************
+   2          编写程序，使用开发板与1602液晶显示模块实现以下功能：
+   3          1、     在1602的第一行上显示自己的座位号；
+   4          2、     在1602上第二行显示自己名字的首字母；比如（潘英杰：PYJ、徐访：XF）
+   5          注意：1、座位号请按照附件单片机实验成绩登记表.xlsx中的座位号
+   6          2、LCD1602液晶数据手册见附件
+   7          3、LCD1602液晶驱动请看附件文件夹
+   8          ***********************************************************************************/
+   9          
+  10          #include "reg52.h"                       //此文件中定义了单片机的一些特殊功能寄存器
+  11          #include "lcd.h"
+  12          
+  13          typedef unsigned int u16;        //对数据类型进行声明定义
+  14          typedef unsigned char u8;
+  15          
+  16          u8 Disp1[] = "63";
+  17          u8 Disp2[] = "YMJ";
+  18          
+  19          void main(void)
+  20          {
+  21   1              u8 i=0,j=0;
+  22   1              LcdInit();
+  23   1              LcdWriteCom(0x80);  //设置数据指针起点（第一行显示）
+  24   1              for(i=0;i<2;i++)
+  25   1              {
+  26   2                      LcdWriteData(Disp1[i]); 
+  27   2                      Lcd1602_Delay1ms(5);
+  28   2              }
+  29   1              
+  30   1              LcdWriteCom(0xC0);  //设置数据指针起点（第二行显示）
+  31   1              for(j=0;j<3;j++)
+  32   1              {
+  33   2                      LcdWriteData(Disp2[j]); 
+  34   2                      Lcd1602_Delay1ms(5);
+  35   2              }
+  36   1              while(1);                               
+  37   1      }
+  38          
+  39          
+  40          
+  41          //判忙功能加入
+  42          //https://blog.csdn.net/u013151320/article/details/46663167
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     78    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

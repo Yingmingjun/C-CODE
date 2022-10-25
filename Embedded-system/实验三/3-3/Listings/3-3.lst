@@ -1,0 +1,148 @@
+C51 COMPILER V9.57.0.0   3_3                                                               10/13/2020 23:05:16 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE 3_3
+OBJECT MODULE PLACED IN .\Objects\3-3.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\3-3.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\3-3.lst) OBJECT(.\Objects\3-3.obj)
+
+line level    source
+
+   1          //编写程序，使用开发板实现以下功能：
+   2          //1、   使用定时器0的方式0，实现8个LED以0.5s间隔闪烁
+   3          //2、   使用定时器1的方式1，实现数码管前两位59s循环计时；
+   4          //注意：数码管的驱动方式请查看附带PPT自行设计；
+   5          
+   6          #include "reg52.h"
+   7          
+   8          typedef unsigned int u16;
+   9          typedef unsigned char u8;
+  10          
+  11          u16 code smgduan[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};//显示0~9的值
+  12          u16 count1=0,count2=0,n=60,S=0,G=0;
+  13          
+  14          sbit led0 = P2^0;
+  15          sbit led1 = P2^1;
+  16          sbit led5 = P2^5;
+  17          sbit led6 = P2^6;
+  18          sbit led7 = P2^7;
+  19          sbit LSA=P2^2;
+  20          sbit LSB=P2^3;
+  21          sbit LSC=P2^4;
+  22          
+  23          void delay(u16 n)
+  24          {
+  25   1              u16 a=0,b=0;
+  26   1              for(a=0;a<n;a++)
+  27   1              {
+  28   2                      for(b=0;b<110;b++);
+  29   2              }
+  30   1      }
+  31          
+  32          void Timer0Init(void)           //100us@11.0592MHz
+  33          {
+  34   1              EA = 1;                 //打开总中断
+  35   1              TMOD = 0x10;    //设置定时器0方式0,     定时器1方式1
+  36   1              TL0 = 0xA4;             
+  37   1              TH0 = 0x1F;             //设置定时初值100us
+  38   1              ET0 = 1;                //清除TF0标志
+  39   1              TR0 = 1;                //定时器0开始计时
+  40   1              
+  41   1      } 
+  42          
+  43          void Timer1Init(void)           //1ms@11.0592MHz
+  44          {
+  45   1              EA = 1;                 //打开总中断
+  46   1              TL1 = 0x66;             
+  47   1              TH1 = 0xFC;             //设置定时初值1ms
+  48   1              ET1 = 1;                //清除TF0标志
+  49   1              TR1 = 1;                //定时器0开始计时
+  50   1      } 
+  51          
+  52          void Timer0Interrupt() interrupt 1
+  53          {
+  54   1              TL0 = 0xA4;             
+C51 COMPILER V9.57.0.0   3_3                                                               10/13/2020 23:05:16 PAGE 2   
+
+  55   1              TH0 = 0x1F;             //设置定时初值100us
+  56   1              count1++;
+  57   1              if(count1>=50)
+  58   1              {
+  59   2                              count1 = 0;
+  60   2                              led0=~led0;
+  61   2                              led1=~led1;
+  62   2                              led5=~led5;
+  63   2                              led6=~led6;
+  64   2                              led7=~led7;
+  65   2              }
+  66   1      }
+  67          
+  68          void Timer1Interrupt() interrupt 3
+  69          {
+  70   1              TL1 = 0x66;             
+  71   1              TH1 = 0xFC;             //设置定时初值1ms
+  72   1              count2++;
+  73   1              if(count2>=1000)
+  74   1                      {
+  75   2                              count2 = 0;
+  76   2                              n--;
+  77   2                              S = n/10;
+  78   2                              G = n%10;
+  79   2                              if(n<=0)
+  80   2                              {
+  81   3                                      n=60;
+  82   3                              }
+  83   2      
+  84   2                      }       
+  85   1      }
+  86          
+  87          
+  88          void DigDisplay()
+  89          {
+  90   1              u8 i;
+  91   1              for(i=0;i<2;i++)
+  92   1              {
+  93   2                      switch(i)        //位选，选择点亮的数码管，
+  94   2                      {
+  95   3                          case(0):
+  96   3                                      LSA=1;LSB=1;LSC=1;  P0=smgduan[S];break;//显示第0位
+  97   3                              case(1):
+  98   3                                      LSA=0;LSB=1;LSC=1;  P0=smgduan[G];break;//显示第1位
+  99   3                      }
+ 100   2                      delay(1); //间隔一段时间扫描1ms         
+ 101   2                      P0=0x00;//消隐
+ 102   2              }
+ 103   1      
+ 104   1      
+ 105   1      }
+ 106          
+ 107          void main(void)
+ 108          {
+ 109   1              led0 = 0;
+ 110   1              led1 = 0;
+ 111   1              led5 = 0;
+ 112   1              led6 = 0;
+ 113   1              led7 = 0;
+ 114   1          Timer0Init();
+ 115   1              Timer1Init();
+ 116   1              while(1)
+C51 COMPILER V9.57.0.0   3_3                                                               10/13/2020 23:05:16 PAGE 3   
+
+ 117   1              {               
+ 118   2                      DigDisplay();
+ 119   2              }
+ 120   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    319    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

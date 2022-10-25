@@ -1,0 +1,4 @@
+".\Objects\4-2.obj",
+".\Objects\lcd.obj" 
+TO ".\Objects\4-2" 
+PRINT(".\Listings\4-2.m51") RAMSIZE(256) 

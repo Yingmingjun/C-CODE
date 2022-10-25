@@ -1,0 +1,126 @@
+C51 COMPILER V9.57.0.0   TEST                                                              10/13/2020 19:51:39 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN .\Objects\test.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\test.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\test.lst) OBJECT(.\Objects\test.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          typedef unsigned int u16;
+   3          typedef unsigned char u8;
+   4          sbit LSA=P2^2;
+   5          sbit LSB=P2^3;
+   6          sbit LSC=P2^4;
+   7          
+   8          u8 code seg[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+   9          u8 code dig[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d};
+  10          
+  11          #define led P2
+  12           u16 i=0,m=0,g=0,s=0;
+  13          
+  14          void delay(u16 t)
+  15          {
+  16   1              while(t)
+  17   1                      t--;
+  18   1      }
+  19          
+  20          void display()
+  21          {
+  22   1              u16 n=6;
+  23   1              for(;n<8;n++)
+  24   1              {
+  25   2                      switch (n)
+  26   2                      {
+  27   3                              case 6:
+  28   3                                      LSA=0;LSB=1;LSC=1;P0=seg[g];break;
+  29   3                              case 7:
+  30   3                                      LSA=1;LSB=1;LSC=1;P0=dig[s]; break;
+  31   3                      }
+  32   2                      delay(100);
+  33   2                      P0=0x00;
+  34   2              }
+  35   1      }
+  36          
+  37          
+  38          void main()
+  39          {
+  40   1       TMOD=0x10;
+  41   1       TL0=0x78;
+  42   1              TH0=0x0c;
+  43   1              TL1=0x78;
+  44   1              TH1=0xec;
+  45   1              ET1=1;
+  46   1       ET0=1;
+  47   1       EA=1;
+  48   1       //TR0=1;
+  49   1              TR1=1;
+  50   1      
+  51   1       while(1) display();
+  52   1      }
+  53          
+  54          /*void timer0() interrupt 1
+C51 COMPILER V9.57.0.0   TEST                                                              10/13/2020 19:51:39 PAGE 2   
+
+  55          {
+  56          
+  57           TL0=0x78;
+  58                  TH0=0x0c;
+  59          i++;
+  60          
+  61          if(i>=100)
+  62          {
+  63                  P2=~P2;
+  64                  i=0;
+  65                  TL0=0x78;
+  66                  TH0=0x0c;
+  67          }
+  68          else
+  69          {
+  70          TL0=0x78;
+  71                  TH0=0x0c;
+  72          }
+  73          }*/
+  74          void timer1() interrupt 3
+  75          {
+  76   1      
+  77   1       TL1=0x00;
+  78   1              TH1=0xee;
+  79   1        m++;
+  80   1      
+  81   1      if(m>=200)
+  82   1      {
+  83   2              g++;
+  84   2               if(g>=10)
+  85   2              {
+  86   3                      s++;
+  87   3                      g=0;
+  88   3                      if(s>=6)
+  89   3                              s=0;
+  90   3              }
+  91   2              m=0;
+  92   2              TL1=0x00;
+  93   2              TH1=0xee;
+  94   2      }
+  95   1      else
+  96   1      {
+  97   2       TL1=0x00;
+  98   2              TH1=0xee;
+  99   2      }
+ 100   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    207    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

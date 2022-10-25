@@ -1,0 +1,212 @@
+C51 COMPILER V9.57.0.0   MAIN                                                              10/17/2020 20:26:27 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "lcd.h"
+   3          #include "ds1302.h"
+   4          typedef unsigned int u16;
+   5          typedef unsigned char u8;       
+   6          sbit beep=P1^5;   
+   7          sbit K1=P3^1;
+   8          sbit K2=P3^0;
+   9          sbit K3=P3^2;
+  10          sbit K4=P3^3;
+  11          //void delay(u16 i);
+  12          void Int0Configuration();
+  13          void LcdDisplay();
+  14          void read_time();
+  15          //unsigned char SetState,SetPlace;
+  16          //void Delay10ms(void);   //误差 0us
+  17          u8 m=0;
+  18          u16 a=0;
+  19          u8 readtime[14];
+  20          u8 sec_buf=0;
+  21          u8 sec_flag=0;
+  22          
+  23          //void delay(u16 i)
+  24          //{
+  25          //      while(i--);     
+  26          //}
+  27          void Delay10ms()                //@11.0592MHz
+  28          {
+  29   1              unsigned char i, j;
+  30   1              i = 18;
+  31   1              j = 235;
+  32   1              do
+  33   1              {
+  34   2                      while (--j);
+  35   2              } while (--i);
+  36   1      }
+  37          
+  38          void Send_char(u8 T)
+  39          {
+  40   1              SBUF = T;
+  41   1              while(!TI);     
+  42   1              TI=0;
+  43   1      }
+  44          
+  45          void UsartInit()
+  46          {
+  47   1                              
+  48   1              TMOD = 0x20;//设置计数器工作方式2
+  49   1          SCON = 0x50;//设置为工作方式1
+  50   1          TH1 = 0xFA;//计数器初始值设置，波特率4800
+  51   1          TL1 = TH1;
+  52   1          PCON = 0x00;//波特率不加倍
+  53   1          EA = 1;//打开总中断
+  54   1          ES = 1;//打开接收中断
+  55   1          TR1 = 1;//打开计数器
+C51 COMPILER V9.57.0.0   MAIN                                                              10/17/2020 20:26:27 PAGE 2   
+
+  56   1      }
+  57          
+  58          
+  59          void main()
+  60          {
+  61   1      //      unsigned char i;
+  62   1              Int0Configuration();
+  63   1              LcdInit();
+  64   1              Ds1302Init();
+  65   1              UsartInit();            //串口初始化
+  66   1              while(1)
+  67   1              {       
+  68   2                      read_time();
+  69   2                      LcdDisplay();
+  70   2                      if(readtime[13]!=sec_buf)
+  71   2                      {               
+  72   3                              
+  73   3                              EA=0;
+  74   3                              sec_flag=0;
+  75   3                              sec_buf=readtime[13];
+  76   3                              Send_char(2 +'0');//年
+  77   3                              Send_char(0 +'0');
+  78   3                              Send_char(readtime[2]+'0');
+  79   3                              Send_char(readtime[3]+'0');
+  80   3                              Send_char('/');
+  81   3                              Send_char(readtime[4]+'0');//月
+  82   3                              Send_char(readtime[5]+'0') ;
+  83   3                              Send_char('/');
+  84   3                              Send_char(readtime[6]+'0');//日
+  85   3                              Send_char(readtime[7]+'0');
+  86   3                              Send_char(' ');
+  87   3                              Send_char(readtime[8]+'0');//时
+  88   3                              Send_char(readtime[9]+'0');
+  89   3                              Send_char(':');
+  90   3                              Send_char(readtime [10]+'0');//分
+  91   3                              Send_char(readtime [11]+'0') ;
+  92   3                              Send_char(':');
+  93   3                              Send_char(readtime [12]+'0');//秒
+  94   3                              Send_char(readtime [13]+'0');
+  95   3                              Send_char('\n');
+  96   3                              SBUF='\n';
+  97   3                              while(!TI); //等待发送完毕
+  98   3                              TI=0;//清中断
+  99   3                              EA=1;
+ 100   3                      }
+ 101   2                      Delay10ms();
+ 102   2      
+ 103   2              }
+ 104   1              
+ 105   1      }
+ 106          
+ 107          
+ 108          void LcdDisplay()
+ 109          {
+ 110   1              LcdWriteCom(0x80+0X40);
+ 111   1              LcdWriteData('0'+TIME[2] /16);                          //时
+ 112   1              LcdWriteData('0'+(TIME[2]&0x0f));                                
+ 113   1              LcdWriteData('-');
+ 114   1              LcdWriteData('0'+TIME[1]/16);                           //分
+ 115   1              LcdWriteData('0'+(TIME[1]&0x0f));       
+ 116   1              LcdWriteData('-');
+ 117   1              LcdWriteData('0'+TIME[0]/16);                           //秒
+C51 COMPILER V9.57.0.0   MAIN                                                              10/17/2020 20:26:27 PAGE 3   
+
+ 118   1              LcdWriteData('0'+(TIME[0]&0x0f));
+ 119   1      
+ 120   1              LcdWriteCom(0x80);
+ 121   1              LcdWriteData('2');
+ 122   1              LcdWriteData('0');
+ 123   1              LcdWriteData('0'+TIME[6]/16);                   //年
+ 124   1              LcdWriteData('0'+(TIME[6]&0x0f));
+ 125   1              LcdWriteData('-');
+ 126   1              LcdWriteData('0'+TIME[4]/16);                   //月
+ 127   1              LcdWriteData('0'+(TIME[4]&0x0f));
+ 128   1              LcdWriteData('-');
+ 129   1              LcdWriteData('0'+TIME[3]/16);                   //日
+ 130   1              LcdWriteData('0'+(TIME[3]&0x0f));
+ 131   1              LcdWriteCom(0x8D);
+ 132   1              LcdWriteData('0'+(TIME[5]&0x07));       //星期  
+ 133   1      
+ 134   1      }
+ 135          
+ 136          void Int0Configuration()
+ 137          {
+ 138   1              //设置INT0
+ 139   1              IT0=1;//跳变沿出发方式（下降沿）
+ 140   1              EX0=1;//打开INT0的中断允许。
+ 141   1              EA=1;//打开总中断       
+ 142   1      }
+ 143          
+ 144          
+ 145          
+ 146          //void Delay10ms(void)   //误差 0us
+ 147          //{
+ 148          //    unsigned char a,b,c;
+ 149          //    for(c=1;c>0;c--)
+ 150          //        for(b=38;b>0;b--)
+ 151          //            for(a=130;a>0;a--);
+ 152          //}
+ 153          
+ 154          void read_time()
+ 155          {
+ 156   1              Ds1302ReadTime();
+ 157   1      //      readtime [0]= (TIME[0]>>4); //分离出年千位
+ 158   1      //      readtime [1]=(TIME[0]&0x0F);// 11分离出年百位
+ 159   1              readtime [2]=(TIME[6]>>4); //1分离出年十位
+ 160   1              readtime [3]= (TIME[6]&0x0F); //分离出年个位
+ 161   1              readtime [4]=(TIME[4]>>4); //1分离出月十位
+ 162   1              readtime [5]= (TIME[4]&0x0F); //分离出月个位
+ 163   1              readtime [6]=(TIME[3]>>4); //分离出日十位
+ 164   1              readtime [7]= (TIME[3]&0x0F); //分离出日个位
+ 165   1              readtime [8]=(TIME[2]>>4); //分离出小时十位
+ 166   1              readtime [9]= (TIME[2]&0x0F); //分离出小时个位
+ 167   1              readtime [10]=(TIME[1]>>4); //分离出分钟十位
+ 168   1              readtime [11]= (TIME[1]&0x0F); //分离出分钟个位
+ 169   1              readtime [12]=(TIME[0]>>4); //分离出秒钟十位
+ 170   1              readtime [13]= (TIME[0]&0x0F); //分离出秒钟个位
+ 171   1      }
+ 172          //void Usart() interrupt 4
+ 173          //{
+ 174          //      for(m=0;m<20;m++)
+ 175          //      {
+ 176          //      TIME[m] = SBUF;   //出去接收到的数据
+ 177          //      RI = 0;                         //清除接收中断标志位
+ 178          //      SBUF=TIME[m];   //将接收到的数据放入到发送寄存器
+ 179          
+C51 COMPILER V9.57.0.0   MAIN                                                              10/17/2020 20:26:27 PAGE 4   
+
+ 180          //      }
+ 181          //      while(!TI);                     //等待发送数据完成
+ 182          //      TI=0;                           //清除发送完成标志位
+ 183          //}
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    493    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     19    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

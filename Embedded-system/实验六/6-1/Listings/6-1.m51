@@ -1,0 +1,115 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    10/17/2020  15:08:36  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+D:\KEIL-C51\KEIL\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\6-1 PRINT (.\Listings\6-1.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  .\Objects\6-1 (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0001H     UNIT         ?DT?MAIN
+            IDATA   0009H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0016H     UNIT         ?PR?USARTINIT?MAIN
+            CODE    0019H     0005H     UNIT         ?PR?MAIN?MAIN
+                    001EH     0005H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     000EH     UNIT         ?PR?USART?MAIN
+            CODE    0034H     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\6-1 (MAIN)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN
+  +--> ?PR?USARTINIT?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\6-1 (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/17/2020  15:08:36  PAGE 2
+
+
+  D:00A8H         PUBLIC        IE
+  C:0026H         PUBLIC        Usart
+  B:00A8H.4       PUBLIC        ES
+  D:00B8H         PUBLIC        IP
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:0019H         PUBLIC        main
+  C:0003H         PUBLIC        UsartInit
+  D:0099H         PUBLIC        SBUF
+  D:0087H         PUBLIC        PCON
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  D:008DH         PUBLIC        TH1
+  D:008BH         PUBLIC        TL1
+  B:0088H.6       PUBLIC        TR1
+  D:0008H         PUBLIC        receiveData
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          USARTINIT
+  C:0003H         LINE#         7
+  C:0003H         LINE#         8
+  C:0003H         LINE#         10
+  C:0006H         LINE#         11
+  C:0009H         LINE#         12
+  C:000CH         LINE#         13
+  C:000FH         LINE#         14
+  C:0012H         LINE#         15
+  C:0014H         LINE#         16
+  C:0016H         LINE#         17
+  C:0018H         LINE#         18
+  -------         ENDPROC       USARTINIT
+  -------         PROC          MAIN
+  C:0019H         LINE#         24
+  C:0019H         LINE#         25
+  C:0019H         LINE#         26
+  C:001CH         LINE#         27
+  -------         ENDPROC       MAIN
+  -------         PROC          USART
+  C:0026H         LINE#         30
+  C:0026H         LINE#         32
+  C:0029H         LINE#         33
+  C:002BH         LINE#         34
+  C:002EH         LINE#         35
+  C:0031H         LINE#         36
+  C:0033H         LINE#         37
+  -------         ENDPROC       USART
+  -------         ENDMOD        MAIN
+
+Program Size: data=10.0 xdata=0 code=59
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

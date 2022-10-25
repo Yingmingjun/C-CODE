@@ -1,0 +1,114 @@
+C51 COMPILER V9.57.0.0   SECOND                                                            10/27/2020 18:34:05 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE SECOND
+OBJECT MODULE PLACED IN .\Objects\second.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\second.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\second.lst) OBJECT(.\Objects\second.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          typedef unsigned char u8;
+   3          typedef unsigned int u16;
+   4          u16 count=0;
+   5          
+   6          sbit k3=P3^2;
+   7          sbit k4=P3^3;
+   8          sbit beep=P1^5; 
+   9          sbit LSA=P2^2;
+  10          sbit LSB=P2^3;
+  11          sbit LSC=P2^4;
+  12          
+  13          u16 code smgduan[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};//显示0~9的值
+  14          
+  15          void delay(u16 i)
+  16          {
+  17   1              while(i--);
+  18   1      }
+  19          
+  20          
+  21          void IntInit()
+  22          {
+  23   1              IT0=1;//下降沿触发
+  24   1              EX0=1;//打开INT0的中断允许
+  25   1              EA=1;//打开总中断       
+  26   1      }
+  27          
+  28          void DigDisplay()
+  29          {
+  30   1              u8 i;
+  31   1              for(i=0;i<8;i++)
+  32   1              {
+  33   2                      switch(i)        //位选，选择点亮的数码管，
+  34   2                      {
+  35   3                         case(0):
+  36   3                                      LSA=1;LSB=1;LSC=1;  P0=0x00;break;//显示第0位
+  37   3                              case(1):
+  38   3                                      LSA=0;LSB=1;LSC=1;  P0=0x00;break;//显示第1位
+  39   3                              case(2):
+  40   3                                      LSA=1;LSB=0;LSC=1;  P0=0x00;break;//显示第2位
+  41   3                              case(3):        
+  42   3                                      LSA=0;LSB=0;LSC=1;  P0=0x00;break;//显示第3位
+  43   3                              case(4):
+  44   3                                      LSA=1;LSB=1;LSC=0;  P0=0x00;break;//显示第4位
+  45   3                              case(5):
+  46   3                                      LSA=0;LSB=1;LSC=0;  P0=0x00;break;//显示第5位
+  47   3                              case(6):
+  48   3                                      LSA=1;LSB=0;LSC=0;  P0=0x00;break;//显示第6位
+  49   3                              case(7):
+  50   3                                      LSA=0;LSB=0;LSC=0;  P0=smgduan[count];break;//显示第7位 
+  51   3                      }
+  52   2                      delay(100); //间隔一段时间扫描  
+  53   2                      P0=0x00;//消隐
+  54   2              }
+C51 COMPILER V9.57.0.0   SECOND                                                            10/27/2020 18:34:05 PAGE 2   
+
+  55   1      }
+  56          void main()
+  57          {
+  58   1              IntInit();
+  59   1              while(1)
+  60   1              {
+  61   2                      DigDisplay();
+  62   2              }
+  63   1      }
+  64          
+  65          
+  66          
+  67          void Int0()     interrupt 0             //外部中断0的中断函数
+  68          {
+  69   1              if(k3==0)
+  70   1              {
+  71   2                      delay(1000);
+  72   2                              while(!k3);
+  73   2                              count++;
+  74   2                      
+  75   2              }
+  76   1              
+  77   1              if(count>=9)
+  78   1              {
+  79   2                      while(1)
+  80   2                      {       
+  81   3                      
+  82   3                              beep=~beep;
+  83   3                              delay(10);
+  84   3                      }
+  85   2              }
+  86   1      }
+  87          
+  88          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    233    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

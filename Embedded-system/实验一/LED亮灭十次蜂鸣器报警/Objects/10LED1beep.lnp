@@ -1,0 +1,3 @@
+".\Objects\10flicker1beep.obj" 
+TO ".\Objects\10LED1beep" 
+PRINT(".\Listings\10LED1beep.m51") RAMSIZE(256) 

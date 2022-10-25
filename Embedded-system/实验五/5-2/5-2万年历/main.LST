@@ -1,0 +1,165 @@
+C51 COMPILER V9.57.0.0   MAIN                                                              10/16/2020 20:22:38 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 实验名                           : 万年历实验
+   3          * 使用的IO           : 
+   4          * 实验效果       :1602显示时钟，按K3进入时钟设置，按K1选择设置的时分秒日月，按K2选择
+   5          *选择设置加1。 
+   6          *       注意                                     ：
+   7          *******************************************************************************/
+   8          #include<reg51.h>
+   9          #include"lcd.h"
+  10          #include"ds1302.h"
+  11          typedef unsigned int u16;        
+  12          sbit beep=P1^5;   
+  13          sbit K1=P3^1;
+  14          sbit K2=P3^0;
+  15          sbit K3=P3^2;
+  16          sbit K4=P3^3;
+  17          void delay(u16 i);
+  18          void Int0Configuration();
+  19          void LcdDisplay();
+  20          unsigned char SetState,SetPlace;
+  21          void Delay10ms(void);   //误差 0us
+  22          
+  23          u16 a=0;
+  24          void delay(u16 i)
+  25          {
+  26   1              while(i--);     
+  27   1      }
+  28          
+  29          /*******************************************************************************
+  30          * 函数名         : main
+  31          * 函数功能                 : 主函数
+  32          * 输入           : 无
+  33          * 输出           : 无
+  34          *******************************************************************************/
+  35          
+  36          void main()
+  37          {
+  38   1      //      unsigned char i;
+  39   1              Int0Configuration();
+  40   1              LcdInit();
+  41   1              Ds1302Init();
+  42   1              while(1)
+  43   1              {       
+  44   2                      if(SetState==0)
+  45   2                      {
+  46   3                              Ds1302ReadTime();
+  47   3                      }
+  48   2                      LcdDisplay();
+  49   2              if(TIME[5]==0x03)
+  50   2                      {
+  51   3                              for(a=0;a<100;a++)
+  52   3                              {
+  53   4                                      beep=~beep;
+  54   4                                      delay(50); //延时大约100us   通过修改此延时时间达到不同的发声效果       
+  55   4                              }
+C51 COMPILER V9.57.0.0   MAIN                                                              10/16/2020 20:22:38 PAGE 2   
+
+  56   3      
+  57   3                      }
+  58   2              }
+  59   1              
+  60   1      }
+  61          /*******************************************************************************
+  62          * 函数名         : LcdDisplay()
+  63          * 函数功能                 : 显示函数
+  64          * 输入           : 无
+  65          * 输出           : 无
+  66          *******************************************************************************/
+  67          
+  68          void LcdDisplay()
+  69          {
+  70   1              LcdWriteCom(0x80+0X40);
+  71   1              LcdWriteData('0'+TIME[2] /16);                          //时
+  72   1              LcdWriteData('0'+(TIME[2]&0x0f));                                
+  73   1              LcdWriteData('-');
+  74   1              LcdWriteData('0'+TIME[1]/16);                           //分
+  75   1              LcdWriteData('0'+(TIME[1]&0x0f));       
+  76   1              LcdWriteData('-');
+  77   1              LcdWriteData('0'+TIME[0]/16);                           //秒
+  78   1              LcdWriteData('0'+(TIME[0]&0x0f));
+  79   1      
+  80   1              LcdWriteCom(0x80);
+  81   1              LcdWriteData('2');
+  82   1              LcdWriteData('0');
+  83   1              LcdWriteData('0'+TIME[6]/16);                   //年
+  84   1              LcdWriteData('0'+(TIME[6]&0x0f));
+  85   1              LcdWriteData('-');
+  86   1              LcdWriteData('0'+TIME[4]/16);                   //月
+  87   1              LcdWriteData('0'+(TIME[4]&0x0f));
+  88   1              LcdWriteData('-');
+  89   1              LcdWriteData('0'+TIME[3]/16);                   //日
+  90   1              LcdWriteData('0'+(TIME[3]&0x0f));
+  91   1              LcdWriteCom(0x8D);
+  92   1              LcdWriteData('0'+(TIME[5]&0x07));       //星期  
+  93   1      
+  94   1      }
+  95          /*******************************************************************************
+  96          * 函数名         : Int0Configuration()
+  97          * 函数功能                 : 配置外部中断0
+  98          * 输入           : 无
+  99          * 输出           : 无
+ 100          *******************************************************************************/
+ 101          
+ 102          void Int0Configuration()
+ 103          {
+ 104   1              //设置INT0
+ 105   1              IT0=1;//跳变沿出发方式（下降沿）
+ 106   1              EX0=1;//打开INT0的中断允许。
+ 107   1              EA=1;//打开总中断       
+ 108   1      }
+ 109          /*******************************************************************************
+ 110          * 函数名         : Int0() 
+ 111          * 函数功能                 : 外部中断0 中断函数
+ 112          * 输入           : 无
+ 113          * 输出           : 无
+ 114          *******************************************************************************/
+ 115          
+ 116          void Int0() interrupt 0          
+ 117          {
+C51 COMPILER V9.57.0.0   MAIN                                                              10/16/2020 20:22:38 PAGE 3   
+
+ 118   1              Delay10ms();
+ 119   1              if(K3==0)
+ 120   1              {
+ 121   2                      SetState=~SetState;
+ 122   2                      SetPlace=0;
+ 123   2                      Ds1302Init();   
+ 124   2              }
+ 125   1      }
+ 126          /*******************************************************************************
+ 127          * 函数名         : Delay10ms
+ 128          * 函数功能                 : 延时函数，延时10ms
+ 129          * 输入           : 无
+ 130          * 输出           : 无
+ 131          *******************************************************************************/
+ 132          void Delay10ms(void)   //误差 0us
+ 133          {
+ 134   1          unsigned char a,b,c;
+ 135   1          for(c=1;c>0;c--)
+ 136   1              for(b=38;b>0;b--)
+ 137   1                  for(a=130;a>0;a--);
+ 138   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    342    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

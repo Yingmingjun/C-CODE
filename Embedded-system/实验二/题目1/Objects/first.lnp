@@ -1,0 +1,3 @@
+".\Objects\first.c.obj" 
+TO ".\Objects\first" 
+PRINT(".\Listings\first.m51") RAMSIZE(256) 

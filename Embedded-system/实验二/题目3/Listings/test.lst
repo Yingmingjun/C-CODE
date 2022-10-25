@@ -1,0 +1,129 @@
+C51 COMPILER V9.57.0.0   TEST                                                              10/14/2020 11:03:23 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN .\Objects\test.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\test.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\test.lst) OBJECT(.\Objects\test.obj)
+
+line level    source
+
+   1          /*/////////////////题目三/////////////////////////////////////////////////////////////////////////////////
+             -/////////////
+   2          编写程序，使用两级中断，使用开发板实现以下功能： 
+   3          1、     电路正常工作，，两个LED 同时点亮；
+   4          2、     若K3先按下，，LED1熄灭，LED0闪烁10次；
+   5          3、     若在LED0闪烁期间按下K4，则LED0熄灭，LED1闪烁10次熄灭，LED0再次闪烁
+   6          4、     若K4先按下，，则LED1闪烁10次后熄灭，若在LED1闪烁期间K3按下,
+   7                  不能打断LED1的闪烁，等LED1闪烁结束后LED0闪烁10次。
+   8          5、     闪烁结束后，恢复正常工作（即两灯同时点亮的状态）。
+   9          */////////////////////////////////////////////////////////////////////////////////////////////////////////
+             -//////////////////
+  10          #include<reg52.h>
+  11          #include<intrins.h>
+  12          typedef unsigned char u8;
+  13          typedef unsigned int u16;
+  14          u16 i,j;
+  15          sbit led0=P2^0;
+  16          sbit led1=P2^7;
+  17          sbit k3=P3^2;
+  18          sbit k4=P3^3;
+  19          
+  20          void delay(u16 i)
+  21          {
+  22   1              while(i--);
+  23   1      }
+  24          
+  25          void IntInit0()
+  26          {       
+  27   1      
+  28   1              //配置外部中断
+  29   1              IT0=1;//下降沿
+  30   1              EX0=1;//打开INT0的中断允许
+  31   1      }
+  32          
+  33          void IntInit1()
+  34          {
+  35   1              IT1=1;//下降沿激发
+  36   1              EX1=1;//打开INT1中断允许        
+  37   1      }
+  38          
+  39          void main()
+  40          {
+  41   1              IP=0x04;//设置INT1的优先级为最高
+  42   1              EA=1;//打开总中断       
+  43   1              IntInit0();
+  44   1              IntInit1();
+  45   1              led0=0;
+  46   1              led1=0;
+  47   1              while(1);
+  48   1      }
+  49          
+  50          void Int0()     interrupt 0             //外部中断0的中断函数
+  51          {
+  52   1              if(k3==0)
+C51 COMPILER V9.57.0.0   TEST                                                              10/14/2020 11:03:23 PAGE 2   
+
+  53   1              {
+  54   2                      delay(1000);//延时消抖
+  55   2                      while(!k3);
+  56   2                      led1=1;
+  57   2      
+  58   2                      for(j=0;j<20;j++)
+  59   2                      {
+  60   3                              led0=~led0;
+  61   3                              delay(30000);
+  62   3                      }
+  63   2                      led1=0;
+  64   2                      led0=0; 
+  65   2              }
+  66   1      }
+  67          
+  68          void Int1()     interrupt 2             //外部中断1低优先级
+  69          {
+  70   1              if(k4==0)
+  71   1              {
+  72   2                      delay(1000);//延时消抖
+  73   2                      while(!k4);
+  74   2                      led0=1;
+  75   2                      for(i=0;i<20;i++)
+  76   2                      {
+  77   3                              led1=~led1;
+  78   3                              delay(30000);
+  79   3                              if(k3==0)
+  80   3                              {
+  81   4                                      for(;i<20;i++)
+  82   4                                      {
+  83   5                                              led1=~led1;
+  84   5                                              delay(30000);
+  85   5                                      }
+  86   4                                      for(j=0;j<20;j++)
+  87   4                                      {
+  88   5                                              led0=~led0;
+  89   5                                              delay(30000);
+  90   5                                      }
+  91   4                              }
+  92   3                      }
+  93   2      
+  94   2                      led0=0;
+  95   2                      led1=0;
+  96   2              }
+  97   1      }
+  98          
+  99          
+ 100          
+ 101          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    239    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

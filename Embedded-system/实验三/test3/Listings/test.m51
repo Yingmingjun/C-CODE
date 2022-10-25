@@ -1,0 +1,177 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    10/13/2020  19:51:39  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+D:\KEIL-C51\KEIL\C51\BIN\BL51.EXE .\Objects\test.obj TO .\Objects\test PRINT (.\Listings\test.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\test.obj (TEST)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\test (TEST)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0008H     UNIT         ?DT?TEST
+            IDATA   0010H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0011H     UNIT         ?C_INITSEG
+                    0014H     0007H                  *** GAP ***
+            CODE    001BH     0003H     ABSOLUTE     
+            CODE    001EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    00AAH     005AH     UNIT         ?PR?TIMER1?TEST
+            CODE    0104H     004DH     UNIT         ?PR?DISPLAY?TEST
+            CODE    0151H     001CH     UNIT         ?PR?MAIN?TEST
+            CODE    016DH     0010H     UNIT         ?CO?TEST
+            CODE    017DH     000CH     UNIT         ?PR?_DELAY?TEST
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\test (TEST)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?TEST
+  +--> ?C_INITSEG
+
+?PR?MAIN?TEST
+  +--> ?PR?DISPLAY?TEST
+
+?PR?DISPLAY?TEST
+  +--> ?CO?TEST
+  +--> ?PR?_DELAY?TEST
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\test (TEST)
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/13/2020  19:51:39  PAGE 2
+
+
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        TEST
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  C:017DH         PUBLIC        _delay
+  D:00B8H         PUBLIC        IP
+  C:0151H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  C:0177H         PUBLIC        dig
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:016DH         PUBLIC        seg
+  B:00A8H.1       PUBLIC        ET0
+  B:00A8H.3       PUBLIC        ET1
+  D:008CH         PUBLIC        TH0
+  D:008DH         PUBLIC        TH1
+  D:008AH         PUBLIC        TL0
+  D:008BH         PUBLIC        TL1
+  C:00AAH         PUBLIC        timer1
+  B:0088H.6       PUBLIC        TR1
+  B:00A0H.2       PUBLIC        LSA
+  B:00A0H.3       PUBLIC        LSB
+  B:00A0H.4       PUBLIC        LSC
+  D:0008H         PUBLIC        g
+  D:00C8H         PUBLIC        T2CON
+  D:000AH         PUBLIC        i
+  D:000CH         PUBLIC        m
+  D:000EH         PUBLIC        s
+  C:0104H         PUBLIC        display
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        t
+  C:017DH         LINE#         14
+  C:017DH         LINE#         15
+  C:017DH         LINE#         16
+  C:0181H         LINE#         17
+  C:0188H         LINE#         18
+  -------         ENDPROC       _DELAY
+  -------         PROC          DISPLAY
+  -------         DO            
+  D:0004H         SYMBOL        n
+  -------         ENDDO         
+  C:0104H         LINE#         20
+  C:0104H         LINE#         21
+  C:0104H         LINE#         22
+  C:0108H         LINE#         23
+  C:0108H         LINE#         24
+  C:0108H         LINE#         25
+  C:0113H         LINE#         26
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/13/2020  19:51:39  PAGE 3
+
+
+  C:0113H         LINE#         27
+  C:0113H         LINE#         28
+  C:0125H         LINE#         29
+  C:0125H         LINE#         30
+  C:013BH         LINE#         31
+  C:013BH         LINE#         32
+  C:0142H         LINE#         33
+  C:0145H         LINE#         34
+  C:0150H         LINE#         35
+  -------         ENDPROC       DISPLAY
+  -------         PROC          MAIN
+  C:0151H         LINE#         38
+  C:0151H         LINE#         39
+  C:0151H         LINE#         40
+  C:0154H         LINE#         41
+  C:0157H         LINE#         42
+  C:015AH         LINE#         43
+  C:015DH         LINE#         44
+  C:0160H         LINE#         45
+  C:0162H         LINE#         46
+  C:0164H         LINE#         47
+  C:0166H         LINE#         49
+  C:0168H         LINE#         51
+  -------         ENDPROC       MAIN
+  -------         PROC          TIMER1
+  C:00AAH         LINE#         74
+  C:00AEH         LINE#         77
+  C:00B1H         LINE#         78
+  C:00B4H         LINE#         79
+  C:00BCH         LINE#         81
+  C:00C5H         LINE#         82
+  C:00C5H         LINE#         83
+  C:00CDH         LINE#         84
+  C:00D5H         LINE#         85
+  C:00D5H         LINE#         86
+  C:00DDH         LINE#         87
+  C:00E3H         LINE#         88
+  C:00EBH         LINE#         89
+  C:00F1H         LINE#         90
+  C:00F1H         LINE#         91
+  C:00F7H         LINE#         92
+  C:00F7H         LINE#         93
+  C:00F7H         LINE#         94
+  C:00F9H         LINE#         96
+  C:00F9H         LINE#         97
+  C:00FCH         LINE#         98
+  C:00FFH         LINE#         99
+  C:00FFH         LINE#         100
+  -------         ENDPROC       TIMER1
+  -------         ENDMOD        TEST
+
+Program Size: data=17.0 xdata=0 code=386
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,102 @@
+C51 COMPILER V9.57.0.0   3_2                                                               10/13/2020 18:53:25 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE 3_2
+OBJECT MODULE PLACED IN .\Objects\3-2.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\3-2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\3-2.lst) OBJECT(.\Objects\3-2.obj)
+
+line level    source
+
+   1          #include "reg52.h"
+   2          
+   3          typedef unsigned int u16;
+   4          typedef unsigned char u8;
+   5          
+   6          u16 count1=0,count2=0;
+   7          sbit led0 = P2^0;
+   8          sbit led1 = P2^1;
+   9          sbit led2 = P2^2;
+  10          sbit led3 = P2^3;
+  11          sbit led4 = P2^4;
+  12          sbit led5 = P2^5;
+  13          sbit led6 = P2^6;
+  14          sbit led7 = P2^7;
+  15          
+  16          
+  17          void InitTimer0(void)
+  18          {
+  19   1          TMOD = 0x03;
+  20   1          TH0 = 0xD1;///50us
+  21   1          TL0 = 0xA3;//100us
+  22   1          EA = 1;
+  23   1          ET0 = 1;
+  24   1              ET1 = 1;
+  25   1          TR0 = 1;
+  26   1              TR1 = 1;
+  27   1      }
+  28          
+  29          void TL0_timer(void) interrupt 1
+  30          {
+  31   1          TL0 = 0xA3;//100us
+  32   1              count1++;
+  33   1      }
+  34          
+  35          void TH0_timer(void) interrupt 3
+  36          {
+  37   1          TH0 = 0xD1;///50us
+  38   1              count2++;
+  39   1      }
+  40          
+  41          
+  42          void main(void)
+  43          {
+  44   1                              led0 = 0;
+  45   1                              led1 = 0;
+  46   1                              led2 = 0;
+  47   1                              led3 = 0;
+  48   1                              led4 = 0;
+  49   1                              led5 = 0;
+  50   1                              led6 = 0;
+  51   1                              led7 = 0;
+  52   1              
+  53   1              InitTimer0();
+  54   1              while(1)
+C51 COMPILER V9.57.0.0   3_2                                                               10/13/2020 18:53:25 PAGE 2   
+
+  55   1              {
+  56   2                      if(count1>=5000)
+  57   2                      {
+  58   3                              count1=0;
+  59   3                              led4 = ~led4;
+  60   3                              led5 = ~led5;
+  61   3                              led6 = ~led6;
+  62   3                              led7 = ~led7;   
+  63   3                      
+  64   3                      }
+  65   2                      if(count2>=5000)
+  66   2                      {
+  67   3                              count2=0;
+  68   3                              led0 = ~led0;
+  69   3                              led1 = ~led1;
+  70   3                              led2 = ~led2;
+  71   3                              led3 = ~led3;
+  72   3                      }
+  73   2              }
+  74   1      }
+  75          
+  76          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    121    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

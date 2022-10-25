@@ -1,0 +1,185 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    10/27/2020  18:34:05  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+D:\KEIL-C51\KEIL\C51\BIN\BL51.EXE .\Objects\second.obj TO .\Objects\second PRINT (.\Listings\second.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\second.obj (SECOND)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL-C51\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\second (SECOND)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0002H     UNIT         ?DT?SECOND
+            IDATA   000AH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     008CH     UNIT         ?PR?DIGDISPLAY?SECOND
+            CODE    0092H     008CH     UNIT         ?C_C51STARTUP
+            CODE    011EH     0043H     UNIT         ?PR?INT0?SECOND
+            CODE    0161H     0014H     UNIT         ?CO?SECOND
+            CODE    0175H     000BH     UNIT         ?PR?_DELAY?SECOND
+            CODE    0180H     0008H     UNIT         ?PR?MAIN?SECOND
+            CODE    0188H     0007H     UNIT         ?PR?INTINIT?SECOND
+            CODE    018FH     0005H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\second (SECOND)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?INT0?SECOND
+  +--> ?PR?_DELAY?SECOND
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?SECOND
+  +--> ?C_INITSEG
+
+?PR?MAIN?SECOND
+  +--> ?PR?INTINIT?SECOND
+  +--> ?PR?DIGDISPLAY?SECOND
+
+?PR?DIGDISPLAY?SECOND
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/27/2020  18:34:05  PAGE 2
+
+
+  +--> ?CO?SECOND
+  +--> ?PR?_DELAY?SECOND
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\second (SECOND)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        SECOND
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  C:0175H         PUBLIC        _delay
+  D:00B8H         PUBLIC        IP
+  B:0090H.5       PUBLIC        beep
+  B:00B0H.2       PUBLIC        k3
+  C:0180H         PUBLIC        main
+  D:0008H         PUBLIC        count
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:0188H         PUBLIC        IntInit
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  C:011EH         PUBLIC        Int0
+  B:00A0H.2       PUBLIC        LSA
+  B:00A0H.3       PUBLIC        LSB
+  B:00A0H.4       PUBLIC        LSC
+  D:00C8H         PUBLIC        T2CON
+  C:0006H         PUBLIC        DigDisplay
+  C:0161H         PUBLIC        smgduan
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        i
+  C:0175H         LINE#         15
+  C:0175H         LINE#         16
+  C:0175H         LINE#         17
+  C:017FH         LINE#         18
+  -------         ENDPROC       _DELAY
+  -------         PROC          INTINIT
+  C:0188H         LINE#         21
+  C:0188H         LINE#         22
+  C:0188H         LINE#         23
+  C:018AH         LINE#         24
+  C:018CH         LINE#         25
+  C:018EH         LINE#         26
+  -------         ENDPROC       INTINIT
+  -------         PROC          DIGDISPLAY
+  -------         DO            
+  D:0005H         SYMBOL        i
+  -------         ENDDO         
+  C:0006H         LINE#         28
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/27/2020  18:34:05  PAGE 3
+
+
+  C:0006H         LINE#         29
+  C:0006H         LINE#         31
+  C:0008H         LINE#         32
+  C:0008H         LINE#         33
+  C:002DH         LINE#         34
+  C:002DH         LINE#         35
+  C:002DH         LINE#         36
+  C:0031H         LINE#         37
+  C:0031H         LINE#         38
+  C:0037H         LINE#         39
+  C:0037H         LINE#         40
+  C:003DH         LINE#         41
+  C:003DH         LINE#         42
+  C:0045H         LINE#         43
+  C:0045H         LINE#         44
+  C:004DH         LINE#         45
+  C:004DH         LINE#         46
+  C:0055H         LINE#         47
+  C:0055H         LINE#         48
+  C:0060H         LINE#         49
+  C:0060H         LINE#         50
+  C:007EH         LINE#         51
+  C:007EH         LINE#         52
+  C:0085H         LINE#         53
+  C:0088H         LINE#         54
+  C:0091H         LINE#         55
+  -------         ENDPROC       DIGDISPLAY
+  -------         PROC          MAIN
+  C:0180H         LINE#         56
+  C:0180H         LINE#         57
+  C:0180H         LINE#         58
+  C:0183H         LINE#         59
+  C:0183H         LINE#         60
+  C:0183H         LINE#         61
+  C:0186H         LINE#         62
+  -------         ENDPROC       MAIN
+  -------         PROC          INT0
+  C:011EH         LINE#         67
+  C:012BH         LINE#         69
+  C:012EH         LINE#         70
+  C:012EH         LINE#         71
+  C:0135H         LINE#         72
+  C:0138H         LINE#         73
+  C:0140H         LINE#         75
+  C:0140H         LINE#         77
+  C:014BH         LINE#         78
+  C:014BH         LINE#         79
+  C:014BH         LINE#         80
+  C:014BH         LINE#         82
+  C:014DH         LINE#         83
+  C:0154H         LINE#         84
+  C:0156H         LINE#         85
+  C:0156H         LINE#         86
+  -------         ENDPROC       INT0
+  -------         ENDMOD        SECOND
+
+Program Size: data=11.0 xdata=0 code=404
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  10/27/2020  18:34:05  PAGE 4
+
+
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

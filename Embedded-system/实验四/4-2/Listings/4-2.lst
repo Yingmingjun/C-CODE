@@ -1,0 +1,127 @@
+C51 COMPILER V9.57.0.0   4_2                                                               10/13/2020 20:58:32 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE 4_2
+OBJECT MODULE PLACED IN .\Objects\4-2.obj
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE Users\4-2.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Li
+                    -stings\4-2.lst) OBJECT(.\Objects\4-2.obj)
+
+line level    source
+
+   1          #include "reg51.h"      
+   2          #include "lcd.h"
+   3          
+   4          #define GPIO_KEY P1
+   5          
+   6          unsigned char KeyValue;
+   7          //用来存放读取到的键值
+   8          unsigned char KeyState;
+   9          //用来存放按键状态
+  10          unsigned char PuZh[]="you are press";
+  11          unsigned char dat[]="0123456789ABCDEF";
+  12          void Delay10ms();   //延时50us
+  13          void KeyDown();          //检测按键函数
+  14           
+  15          /*******************************************************************************
+  16          * 函 数 名         : main
+  17          * 函数功能                 : 主函数
+  18          * 输    入         : 无
+  19          * 输    出         : 无
+  20          *******************************************************************************/
+  21          void main(void)
+  22          {
+  23   1              unsigned char i;
+  24   1              LcdInit();
+  25   1              KeyState=0;
+  26   1              for(i=0;i<13;i++)
+  27   1              {
+  28   2                      //LcdWriteCom(0x80);
+  29   2                      LcdWriteData(PuZh[i]);  
+  30   2              }
+  31   1              while(1)
+  32   1              {
+  33   2                      KeyDown();
+  34   2                      if(KeyState)
+  35   2                      {
+  36   3                              KeyState=0;
+  37   3                              LcdWriteCom(0x80+0x40);
+  38   3                              LcdWriteData(dat[KeyValue]);
+  39   3                      }
+  40   2              }                               
+  41   1      }
+  42          /*******************************************************************************
+  43          * 函 数 名         : KeyDown
+  44          * 函数功能                 : 检测有按键按下并读取键值
+  45          * 输    入         : 无
+  46          * 输    出         : 无
+  47          *******************************************************************************/
+  48          void KeyDown(void)
+  49          {
+  50   1              char a;
+  51   1              GPIO_KEY=0x0f;
+  52   1              if(GPIO_KEY!=0x0f)
+  53   1              {
+  54   2                      Delay10ms();
+C51 COMPILER V9.57.0.0   4_2                                                               10/13/2020 20:58:32 PAGE 2   
+
+  55   2                      if(GPIO_KEY!=0x0f)
+  56   2                      {
+  57   3                              KeyState=1;
+  58   3                              //测试列
+  59   3                              GPIO_KEY=0X0F;
+  60   3      //                      Delay10ms();
+  61   3                              switch(GPIO_KEY)
+  62   3                              {
+  63   4                                      case(0X07):     KeyValue=0;break;
+  64   4                                      case(0X0b):     KeyValue=1;break;
+  65   4                                      case(0X0d): KeyValue=2;break;
+  66   4                                      case(0X0e):     KeyValue=3;break;
+  67   4      //                              default:        KeyValue=17;    //检测出错回复17意思是把数码管全灭掉。
+  68   4                              }
+  69   3                              //测试行
+  70   3                              GPIO_KEY=0XF0;
+  71   3                              Delay10ms();
+  72   3                              switch(GPIO_KEY)
+  73   3                              {
+  74   4                                      case(0X70):     KeyValue=KeyValue;break;
+  75   4                                      case(0Xb0):     KeyValue=KeyValue+4;break;
+  76   4                                      case(0Xd0): KeyValue=KeyValue+8;break;
+  77   4                                      case(0Xe0):     KeyValue=KeyValue+12;break;
+  78   4      //                              default:        KeyValue=17;
+  79   4                              }
+  80   3                              while((a<50)&&(GPIO_KEY!=0xf0))  //检测按键松手检测
+  81   3                              {
+  82   4                                      Delay10ms();
+  83   4                                      a++;
+  84   4                              }
+  85   3                              a=0;
+  86   3                      }
+  87   2              }
+  88   1      }
+  89          /*******************************************************************************
+  90          * 函 数 名         : Delay10ms
+  91          * 函数功能                 : 延时函数，延时10ms
+  92          * 输    入         : 无
+  93          * 输    出         : 无
+  94          *******************************************************************************/
+  95          void Delay10ms(void)   //误差 0us
+  96          {
+  97   1          unsigned char a,b,c;
+  98   1          for(c=1;c>0;c--)
+  99   1              for(b=38;b>0;b--)
+ 100   1                  for(a=130;a>0;a--);
+ 101   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    192    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     33       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

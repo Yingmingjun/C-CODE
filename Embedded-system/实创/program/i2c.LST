@@ -1,0 +1,134 @@
+C51 COMPILER V9.57.0.0   I2C                                                               12/13/2020 00:37:41 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN i2c.OBJ
+COMPILER INVOKED BY: D:\Keil-C51\keil\C51\BIN\C51.EXE i2c.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include"i2c.h"
+   2          
+   3          void Delay10us()
+   4          {
+   5   1              unsigned char a,b;
+   6   1              for(b=1;b>0;b--)
+   7   1                      for(a=2;a>0;a--);
+   8   1      }
+   9          
+  10          void I2cStart()//起始信号：在SCL时钟信号在高电平期间SDA信号产生一个下降沿
+  11          {
+  12   1              SDA=1;
+  13   1              Delay10us();
+  14   1              SCL=1;
+  15   1              Delay10us();//建立时间是SDA保持时间>4.7us
+  16   1              SDA=0;
+  17   1              Delay10us();//保持时间是>4us
+  18   1              SCL=0;                  
+  19   1              Delay10us();            
+  20   1      }
+  21          
+  22          void I2cStop()//终止信号：在SCL时钟信号高电平期间SDA信号产生一个上升沿
+  23          {
+  24   1              SDA=0;
+  25   1              Delay10us();
+  26   1              SCL=1;
+  27   1              Delay10us();//建立时间大于4.7us
+  28   1              SDA=1;
+  29   1              Delay10us();            
+  30   1      }//结束之后保持SDA和SCL都为1；表示总线空闲
+  31          
+  32          
+  33          //I2cSendByte(unsigned char dat)通过I2C发送一个字节。在SCL时钟信号高电平期间，保持发送信号SDA保持稳定
+  34          unsigned char I2cSendByte(unsigned char dat)
+  35          {
+  36   1              unsigned char a=0,b=0;//最大65535，一个机器周期为1us，最大延时65535us。         
+  37   1              for(a=0;a<8;a++)//要发送16位，从最高位开始
+  38   1              {
+  39   2                      SDA=dat>>7;      //起始信号之后SCL=0，所以可以直接改变SDA信号
+  40   2                      dat=dat<<1;
+  41   2                      Delay10us();
+  42   2                      SCL=1;
+  43   2                      Delay10us();//建立时间>4.7us
+  44   2                      SCL=0;
+  45   2                      Delay10us();//时间大于4us               
+  46   2              }
+  47   1              SDA=1;
+  48   1              Delay10us();
+  49   1              SCL=1;
+  50   1              while(SDA)//等待应答，也就是等待从设备把SDA拉低
+  51   1              {
+  52   2                      b++;
+  53   2                      if(b>200)        //如果超过2000us没有应答发送失败，或者为非应答，表示接收结束
+  54   2                      {
+  55   3                              SCL=0;
+C51 COMPILER V9.57.0.0   I2C                                                               12/13/2020 00:37:41 PAGE 2   
+
+  56   3                              Delay10us();
+  57   3                              return 0;
+  58   3                      }
+  59   2              }
+  60   1              SCL=0;
+  61   1              Delay10us();
+  62   1              return 1;               
+  63   1      }
+  64          
+  65          
+  66          unsigned char I2cReadByte()//使用I2c读取一个字节，接收完一个字节SCL=0,SDA=1.
+  67          {
+  68   1              unsigned char a=0,dat=0;
+  69   1              SDA=1;                  //起始和发送一个字节之后SCL都是0
+  70   1              Delay10us();
+  71   1              for(a=0;a<8;a++)//接收8个字节
+  72   1              {
+  73   2                      SCL=1;
+  74   2                      Delay10us();
+  75   2                      dat<<=1;
+  76   2                      dat|=SDA;
+  77   2                      Delay10us();
+  78   2                      SCL=0;
+  79   2                      Delay10us();
+  80   2              }
+  81   1              return dat;             
+  82   1      }
+  83          
+  84          
+  85          void At24c16Write(unsigned char addr,unsigned char dat)//往24c16的一个地址写入一个数据
+  86          {
+  87   1              I2cStart();
+  88   1              I2cSendByte(0xa0);//发送写器件地址
+  89   1              I2cSendByte(addr);//发送要写入内存地址
+  90   1              I2cSendByte(dat);       //发送数据
+  91   1              I2cStop();
+  92   1      }
+  93          
+  94          
+  95          unsigned char At24c16Read(unsigned char addr)//读取at24c16的一个地址的一个数据
+  96          {
+  97   1              unsigned char num;
+  98   1              I2cStart();
+  99   1              I2cSendByte(0xa0); //发送写器件地址
+ 100   1              I2cSendByte(addr); //发送要读取的地址
+ 101   1              I2cStart();
+ 102   1              I2cSendByte(0xa1); //发送读器件地址
+ 103   1              num=I2cReadByte(); //读取数据
+ 104   1              I2cStop();
+ 105   1              return num;     
+ 106   1      }
+ 107          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    201    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.57.0.0   I2C                                                               12/13/2020 00:37:41 PAGE 3   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
